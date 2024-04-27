@@ -7,6 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+pandas = "^2.2.2"
+tabula-py = {extras = ["jpype"], version = "^2.9.0"}
+loguru = "^0.7.2"
 
 
 [build-system]
