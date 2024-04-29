@@ -5,6 +5,7 @@ from enum import Enum
 from functools import reduce
 from io import TextIOWrapper
 from pathlib import Path
+from typing import List
 import glob
 import os
 
@@ -41,7 +42,7 @@ def get_company(filename) -> Company:
 
 def find_transactions_table(pdf_file: TextIOWrapper) -> pd.DataFrame:
     company: Company = get_company(pdf_file)
-    tables = camelot.read_pdf(pdf_file, pages='all')
+    tables = camelot.read_pdf(pdf_file)
     logger.critical(pdf_file)
     for table in tables:
         logger.info("\n" + str(table))
@@ -56,7 +57,7 @@ def normalize_transaction_df(df: pd.DataFrame) -> pd.DataFrame:
 #   MAIN
 #=================
 
-df_list: list[pd.DataFrame] = []
+df_list: List[pd.DataFrame] = []
 
 pdf_files = glob.glob(f'{INPUT_FOLDER}/*.pdf')
 for pdf_file in pdf_files:
