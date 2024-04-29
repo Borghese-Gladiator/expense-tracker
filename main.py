@@ -9,7 +9,7 @@ import glob
 import os
 
 import pandas as pd
-import tabula
+import camelot
 from loguru import logger
 
 #=================
@@ -41,7 +41,7 @@ def get_company(filename) -> Company:
 
 def find_transactions_table(pdf_file: TextIOWrapper) -> pd.DataFrame:
     company: Company = get_company(pdf_file)
-    tables = tabula.read_pdf(pdf_file, pages='all')
+    tables = camelot.read_pdf(pdf_file, pages='all')
     logger.critical(pdf_file)
     for table in tables:
         logger.info("\n" + str(table))
