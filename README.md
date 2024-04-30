@@ -30,6 +30,14 @@ Bootstrap Steps
 Warnings
 - pypdf
   - extract text and manually filter using index per type of PDF instead
+  - Pros - very easy for library since I simply run `page.extract_text().split('\n')`
+  - Cons
+    - certain text gets appended together with no delimeter (eg: `Dec 11 Dec 11 MASALA BAYLITTLETONMA $116.37 `)
+    - tons of custom code
+      - pick page number
+      - pick start of transaction list string
+      - pick end of transaction list string
+      - write logic to parse out each string
 - camelot
   - NOTE: `poetry add camelot-py[base]` (NOT `camelot`)
   - camelot-py installation
