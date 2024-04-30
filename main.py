@@ -5,19 +5,20 @@ from enum import Enum
 from functools import reduce
 from io import TextIOWrapper
 from pathlib import Path
-from typing import List
+from typing import Any, List
 import glob
 import os
 
-import pandas as pd
-import camelot
+from pypdf import PdfReader
 from loguru import logger
+import pandas as pd
 
 #=================
 #   CONSTANTS
 #=================
 INPUT_FOLDER = Path('financial_transaction_history')
 OUTPUT_FILE = Path('normalized_transactions.csv')
+
 
 #=================
 #   UTILS
@@ -26,6 +27,9 @@ OUTPUT_FILE = Path('normalized_transactions.csv')
 # logging
 log_format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS zz}</green> | <level>{level: <8}</level> | <yellow>Line {line: >4} ({file}):</yellow> <b>{message}</b>"
 logger.add("file.log", format=log_format, colorize=False, backtrace=True, diagnose=True)
+
+# dataclass
+# Transaction
 
 # company enum
 class Company(Enum):
@@ -39,15 +43,53 @@ def get_company(filename) -> Company:
         if company.value.lower() in filename_lower:
             return company
     return None
+def get_headers(company: Company) -> list[str]:
+    headers_dict: dict[Company, list[str]] = {
+        Company.CAPITAL_ONE: ['Date', 'Merchant Name', 'Merchant Location', 'Price'],
+    }
+    return headers_dict[company]
+        
 
-def find_transactions_table(pdf_file: TextIOWrapper) -> pd.DataFrame:
-    company: Company = get_company(pdf_file)
-    tables = camelot.read_pdf(pdf_file)
+def find_transactions_table(pdf_file: TextIOWrapper) -> list[Any]:
+    company = get_company(pdf_file)
+    headers = get_headers(company)
+    
+    reader = PdfReader(pdf_file)
+    number_of_pages = len(reader.pages)
+    page = reader.pages[9]
+    text_list = page.extract_text().split('\n')
+    
     logger.critical(pdf_file)
-    for table in tables:
-        logger.info("\n" + str(table))
-    logger.info(type(tables[0]))
-    return tables[0]
+    transaction_list_1 = text_list[text_list.index('Card Ending in 1496') + 1:text_list.index('TOTAL CHARGES')]
+    transaction_list_2 = text_list[text_list.index('Card Ending in 4449') + 1:text_list.index('TOTAL CHARGES')]
+    
+    tx_list = []
+    for idx in range(0, len(transaction_list_1), 4):
+        transaction = tuple(transaction_list_1[idx:idx+4])
+        tx_list.append(transaction)
+        # 0 4 04/24
+        # 1 5 MARKET BASKET 00000729
+        # 2 6 WESTFORD     MA
+        # 3 7 $49.69
+    logger.info(tx_list)
+    # pd.Series(["04/24"], index=[
+    #     "Date",
+    #     "Merchant Name",
+    #     "Merchant Location",
+    #     "Prices"
+    # ])
+    df = pd.DataFrame(tx_list, columns=headers)
+    logger.info(df.head())
+    logger.info('\n' + df['Date'])
+    
+    # logger.info()
+    # logger.info(str(text))
+    # tables = camelot.read_pdf(pdf_file)
+    # logger.critical(pdf_file)
+    # for table in tables:
+    #     logger.info("\n" + str(table))
+    # logger.info(type(tables[0]))
+    return tx_list
 
 def normalize_transaction_df(df: pd.DataFrame) -> pd.DataFrame:
     company: Company = get_company(pdf_file)

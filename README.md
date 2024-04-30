@@ -28,6 +28,8 @@ Bootstrap Steps
 - build subset Excel spreadsheet of rent applicable transactions using column
 
 Warnings
+- pypdf
+  - extract text and manually filter using index per type of PDF instead
 - camelot
   - NOTE: `poetry add camelot-py[base]` (NOT `camelot`)
   - camelot-py installation
@@ -45,6 +47,7 @@ Warnings
   - CLI usage
     - `camelot lattice -plot text .\capital_one_Smry_2023_1496.pdf`
       - `poetry add matplotlib` - `ImportError: matplotlib is required for plotting.`
+  - NOTE: Did not find any text and could not figure out how to customize
 - tabula
   - NOTE: `poetry add tabula-py`
   - > WARNING: The stream doesn't provide any stream length, using fallback readUntilEnd, at offset 64514
