@@ -88,4 +88,6 @@ for tx in fidelity.to_dict('records'):
 df = pd.DataFrame(res_list)
 
 # Output aggregated data
+df['Transaction Date'] = pd.to_datetime(df['Transaction Date'], format="%Y-%m-%d")
+df = df.sort_values(by='Transaction Date', ascending=False)
 df.to_csv(OUTPUT_FILE, index=False)
