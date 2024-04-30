@@ -24,9 +24,9 @@ Bootstrap Steps
 - [X] download PDFs
 - [X] extract tables from PDFs to build transactions list CSV => gave up
 - [X] download all as CSVs
-- [ ] build aggregated table
-  - add default column of rent_applicable_transaction
-- [ ] create Excel spreadsheet
+- [X] build aggregated table
+  - [X] add default column of rent_applicable_transaction
+- [X] create Excel spreadsheet
 - [ ] build subset Excel spreadsheet by filter on rent_applicable_transaction column
 
 

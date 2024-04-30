@@ -9,7 +9,7 @@ import pandas as pd
 INPUT_FOLDER = Path('financial_transaction_history_csv')
 OUTPUT_FILE = Path('transactions.csv')
 
-HEADERS = ['Transaction Date', 'Posted Date', 'Description', 'Category', 'Amount', 'Memo']
+HEADERS = ['Transaction Date', 'Posted Date', 'Description', 'Category', 'Amount', 'Memo', 'Rent Applicable', 'Credit Card']
 
 
 #=================
@@ -57,6 +57,8 @@ for tx in capital_one.to_dict('records'):
         'Category': tx['Category'],
         'Amount': amount,
         'Memo': "",
+        'Rent Applicable': False,
+        'Credit Card': "Capital One",
     })
 for tx in chase.to_dict('records'):
     res_list.append({
@@ -66,6 +68,8 @@ for tx in chase.to_dict('records'):
         'Category': tx['Category'],
         'Amount': tx['Amount'],
         'Memo': tx['Memo'],
+        'Rent Applicable': False,
+        'Credit Card': "Chase",
     })
 for tx in discover.to_dict('records'):
     res_list.append({
@@ -75,6 +79,8 @@ for tx in discover.to_dict('records'):
         'Category': tx['Category'],
         'Amount': tx['Amount'],
         'Memo': "",
+        'Rent Applicable': False,
+        'Credit Card': "Discover",
     })
 for tx in fidelity.to_dict('records'):
     res_list.append({
@@ -84,6 +90,8 @@ for tx in fidelity.to_dict('records'):
         'Category': "",
         'Amount': tx['Amount'],
         'Memo': tx['Memo'],
+        'Rent Applicable': False,
+        'Credit Card': "Fidelity",
     })
 df = pd.DataFrame(res_list)
 
