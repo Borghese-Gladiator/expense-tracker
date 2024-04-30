@@ -49,7 +49,7 @@ print(fidelity.head())
 res_list = []
 
 for tx in capital_one.to_dict('records'):
-    amount = tx['Credit'] if tx['Debit'] == 'NaN' else tx['Debit']
+    amount = tx['Credit'] if tx['Debit'] == 'NaN' else -1 * tx['Debit']
     res_list.append({
         'Transaction Date': tx['Transaction Date'],
         'Posted Date': tx['Posted Date'],
