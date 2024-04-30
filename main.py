@@ -7,7 +7,7 @@ import pandas as pd
 #   CONSTANTS
 #=================
 INPUT_FOLDER = Path('financial_transaction_history_csv')
-OUTPUT_FILE = Path('normalized_transactions.csv')
+OUTPUT_FILE = Path('transactions.csv')
 
 HEADERS = ['Transaction Date', 'Posted Date', 'Description', 'Category', 'Amount', 'Memo']
 
