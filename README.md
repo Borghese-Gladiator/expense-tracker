@@ -1,4 +1,8 @@
 # Expense Aggregation
+Python ETL pipeline to build full transaction history from multiple credit cards
+
+Currently, it is only one Pandas script that aggregates CSVs though
+
 ## Usage Instructions
 - download transaction history
   - rename statements to include company name (can use `Powershell` script potentially)
@@ -108,3 +112,12 @@ Package operations: 1 install, 0 updates, 0 removals
 
 Cannot install pdftopng.
 ```
+
+# To DO
+- write ETL pipeline to get near real-time data
+  - write Extract script to download transaction info
+    - integrate w/ banks
+  - update Transform script to run on transaction info
+  - write Load script to save transaction info
+    - build Google Sheets w/ pivot tables + graphs like "Timmy Expense Tracker"
+- investigate using cron for ETL pipeline
