@@ -49,48 +49,56 @@ print(fidelity.head())
 res_list = []
 
 for tx in capital_one.to_dict('records'):
+    if tx['Credit'] != 'NaN':
+        continue  # ignore credit
     amount = tx['Credit'] if tx['Debit'] == 'NaN' else -1 * tx['Debit']
     res_list.append({
+        'Rent Applicable': False,
         'Transaction Date': tx['Transaction Date'],
         'Posted Date': tx['Posted Date'],
         'Description': tx['Description'],
         'Category': tx['Category'],
         'Amount': amount,
         'Memo': "",
-        'Rent Applicable': False,
         'Credit Card': "Capital One",
     })
 for tx in chase.to_dict('records'):
+    if tx['Amount'] > 0:
+        continue  # ignore credit
     res_list.append({
+        'Rent Applicable': False,
         'Transaction Date': convert_date_format(tx['Transaction Date']),
         'Posted Date': convert_date_format(tx['Post Date']),
         'Description': tx['Description'],
         'Category': tx['Category'],
         'Amount': tx['Amount'],
         'Memo': tx['Memo'],
-        'Rent Applicable': False,
         'Credit Card': "Chase",
     })
 for tx in discover.to_dict('records'):
+    if tx['Amount'] < 0:
+        continue  # ignore credit
     res_list.append({
+        'Rent Applicable': False,
         'Transaction Date': convert_date_format(tx['Trans. Date']),
         'Posted Date': convert_date_format(tx['Post Date']),
         'Description': tx['Description'],
         'Category': tx['Category'],
         'Amount': tx['Amount'],
         'Memo': "",
-        'Rent Applicable': False,
         'Credit Card': "Discover",
     })
 for tx in fidelity.to_dict('records'):
+    if tx['Amount'] > 0:
+        continue  # ignore credit
     res_list.append({
+        'Rent Applicable': False,
         'Transaction Date': tx['Date'],
         'Posted Date': "",
         'Description': tx['Name'],
         'Category': "",
         'Amount': tx['Amount'],
         'Memo': tx['Memo'],
-        'Rent Applicable': False,
         'Credit Card': "Fidelity",
     })
 df = pd.DataFrame(res_list)

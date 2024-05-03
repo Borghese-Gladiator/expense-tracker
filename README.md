@@ -30,6 +30,7 @@ Bootstrap Steps
 - [X] download all as CSVs
 - [X] build aggregated table
   - [X] add default column of rent_applicable_transaction
+  - [X] remove credit 
 - [X] create Excel spreadsheet
 - [ ] build subset Excel spreadsheet by filter on rent_applicable_transaction column
 
