@@ -35,13 +35,13 @@ capital_one_2 = pd.read_csv(INPUT_FOLDER / "capital_one_2023_to_2024_transaction
 capital_one = pd.concat([capital_one_1, capital_one_2])
 print(capital_one.head())
 
-chase = pd.read_csv(INPUT_FOLDER / "Chase8397_Activity20220430_20240430_20240430.CSV")
+chase = pd.read_csv(INPUT_FOLDER / "chase_8397_Activity20220430_20240430_20240430.CSV")
 print(chase.head())
 
-discover = pd.read_csv(INPUT_FOLDER / "Discover-AllAvailable-20240430.csv")
+discover = pd.read_csv(INPUT_FOLDER / "discover_AllAvailable-20240430.csv")
 print(discover.head())
 
-fidelity = pd.read_csv(INPUT_FOLDER / "Credit Card - 8513_04-30-2021_05-04-2024.csv")
+fidelity = pd.read_csv(INPUT_FOLDER / "fidelity_Credit Card - 8513_04-30-2021_05-04-2024.csv")
 print(fidelity.head())
 
 
