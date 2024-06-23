@@ -1,3 +1,38 @@
+# Expense Tracker
+
+## Notes
+### To Do
+- [ ] expense-tracker service - enables clients (Streamlit, PNG summary, Excel)
+- [ ] Streamlit
+  - [ ] implement
+  - [ ] deploy
+- [ ] PNG summary
+  - [ ] implement
+- [ ] Excel
+---
+- [ ] add pre commit hooks
+
+### Bootstrap
+```shell
+mkdir -p expense-tracker/expense_tracker && touch expense-tracker/expense_tracker/__init__.py
+cd expense-tracker
+poetry init
+poetry add arrow
+poetry add --group dev black flake8 isort
+```
+
+```powershell
+New-Item -ItemType Directory -Path "expense-tracker/expense_tracker" -Force
+New-Item -ItemType File -Path "expense-tracker/expense_tracker/__init__.py" -Force
+Set-Location "expense-tracker"
+poetry init
+poetry add arrow
+poetry add --group dev black flake8 isort
+```
+
+<details>
+<summary>Archive</summary>
+
 # Expense Aggregation
 Python ETL pipeline to build full transaction history from multiple credit cards
 
@@ -122,3 +157,5 @@ Cannot install pdftopng.
   - write Load script to save transaction info
     - build Google Sheets w/ pivot tables + graphs like "Timmy Expense Tracker"
 - investigate using cron for ETL pipeline
+
+</details>
