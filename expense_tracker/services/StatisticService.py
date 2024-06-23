@@ -1,6 +1,10 @@
+import pandas as pd
 from arrow import Arrow
-from ..datasources.base import BaseDatasource
-from ..types import StatisticServiceFilter, StatisticServiceGroup
+from pandera.typing import DataFrame
+
+from expense_tracker.datasources.base import BaseDatasource
+from expense_tracker.et_types import StatisticServiceFilter, StatisticServiceGroup, TransactionsSchema
+
 
 class StatisticService:
     datasource: BaseDatasource
@@ -14,7 +18,8 @@ class StatisticService:
         timeframe_end: Arrow,
         filter_by: StatisticServiceFilter,
         group_by: StatisticServiceGroup
-    ):
+    ) -> list[dict]:
+        transactions: DataFrame[TransactionsSchema] = self.datasource.get_transactions()
         """
         get all stats
         filter timeframe
@@ -31,5 +36,6 @@ class StatisticService:
     ):
         """
         """
+        transactions: pd.DataFrame = self.datasource.get_transactions()
         return
         

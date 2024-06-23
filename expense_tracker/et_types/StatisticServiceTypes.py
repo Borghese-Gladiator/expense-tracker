@@ -12,3 +12,7 @@ class StatisticServiceGroup(Enum):
     MERCHANT = "merchant"
     LOCATION = "location"
 
+class StatisticServiceAggregationInterval(Enum):
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    YEARLY = "yearly"

@@ -28,6 +28,8 @@ Flow of Data
 ### Caveats
 - `poetry add python-dotenv`
   - DO NOT install `dotenv` as that is a different package
+- ERROR: VSCode cannot find packages installed w/ Poetry
+  - Solution: Cmd+Shift+P +  `Python: Select Interpreter` - selected 3.10.11 env that poetry created
 
 ### To Do
 Expense Tracker Service
@@ -56,22 +58,40 @@ Expense Tracker Service
 #### Archive To Do
 - [ ] add pre commit hooks
 
-### Bootstrap
-```shell
-mkdir -p expense-tracker/expense_tracker && touch expense-tracker/expense_tracker/__init__.py
-cd expense-tracker
-poetry init
-poetry add arrow
-poetry add --group dev black flake8 isort
-```
+### Bootstrap Steps
+expense_tracker package
+- shell
+  ```shell
+  mkdir -p expense-tracker/expense_tracker && touch expense-tracker/expense_tracker/__init__.py
+  cd expense-tracker
+  poetry init
+  poetry add arrow
+  poetry add --group dev black flake8 isort
+  # implementing StatisticService
+  poetry add pandera
+  ```
+- powershell
+  ```powershell
+  New-Item -ItemType Directory -Path "expense-tracker/expense_tracker" -Force
+  New-Item -ItemType File -Path "expense-tracker/expense_tracker/__init__.py" -Force
+  Set-Location "expense-tracker"
+  poetry init
+  poetry add arrow
+  poetry add --group dev black flake8 isort
+  ```
 
-```powershell
-New-Item -ItemType Directory -Path "expense-tracker/expense_tracker" -Force
-New-Item -ItemType File -Path "expense-tracker/expense_tracker/__init__.py" -Force
-Set-Location "expense-tracker"
+client
+```shell
+cd expense-tracker
+mkdir client && cd client
+touch utils.py streamlit_app.py
 poetry init
 poetry add arrow
-poetry add --group dev black flake8 isort
+poetry add git+https://github.com/Borghese-Gladiator/expense-tracker.git
+# poetry add streamlit pandas numpy
+# poetry add matplotlib
+# generated example code via ChatGPT
+# streamlit run .\streamlit.py
 ```
 
 <details>
