@@ -1,15 +1,58 @@
 # Expense Tracker
+Ideally this will simplify sharing expense tracking from Lunch Money
+- Streamlit website
+- PNG to group chat
+- Excel with results
 
 ## Notes
-### To Do
-- [ ] expense-tracker service - enables clients (Streamlit, PNG summary, Excel)
+
+Flow of Data
+
+- [ ] Excel expense tracker
+  - pivot tables to summarize transactions
+  - bar graph w/ amount per category (reference Lunch Money)
+  - bar graph w/ highest spending per merchants
+  - line graph w/ cumulative spending
+- [ ] Lunch Money scripts
+  - create transactions for Fidelity + PayPal transactions from CSV
+  - get monthly transactions as CSV
+- [ ] Excel expense tracker generator (package)
+  - python script for PDF - load CSV, build graphs, create PDF
+  - python script for Excel - load CSV, build Pivot Tables, build graphs, create Excel
+- [ ] Integrations
+  - python script to screenshot PDF monthly summary and send to Messenger OR Discord
+  - python script to upload Excel into existing Excel "Timmy / Jon Rent" as new page
 - [ ] Streamlit
-  - [ ] implement
-  - [ ] deploy
-- [ ] PNG summary
-  - [ ] implement
-- [ ] Excel
----
+	- show tables, graphs in local UI
+
+### Caveats
+- `poetry add python-dotenv`
+  - DO NOT install `dotenv` as that is a different package
+
+### To Do
+Expense Tracker Service
+- data
+  - [ ] fix: previous existing zscript
+  - [ ] feat: zscript to upload Fidelity + PayPal transactions
+- datasource
+  - lunch money
+    - [ ] get transactions
+    - [ ] write results to file to permanently cache
+- service
+  - StatisticService
+    - [ ] calculate
+    - [ ] get
+- client
+  - [ ] types
+  - [ ] Streamlit
+  - [ ] PNG summary 
+    - [ ] spike: Discord integration
+    - [ ] spike: Messenger integration
+  - [ ] Excel
+    - [ ] spike: build in Google Sheets
+
+
+#### Archive To Do
 - [ ] add pre commit hooks
 
 ### Bootstrap
