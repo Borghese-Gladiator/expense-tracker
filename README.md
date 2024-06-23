@@ -50,7 +50,8 @@ Expense Tracker Service
     - [ ] spike: Messenger integration
   - [ ] Excel
     - [ ] spike: build in Google Sheets
-
+---
+- [ ] update repo description
 
 #### Archive To Do
 - [ ] add pre commit hooks
