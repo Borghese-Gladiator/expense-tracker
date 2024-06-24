@@ -30,6 +30,11 @@ Flow of Data
   - DO NOT install `dotenv` as that is a different package
 - ERROR: VSCode cannot find packages installed w/ Poetry
   - Solution: Cmd+Shift+P +  `Python: Select Interpreter` - selected 3.10.11 env that poetry created
+- `poetry add numpy==1.26`
+  - NumPy had a major `2.0` release on 16 Jun 2024 (1 week ago) and that breaks Pandera's compatability with Pandas
+  - This command pins `numpy` version to one release previous
+  - NOTE: Installing this required explicit python version too: `python = "<3.13,>=3.10"`
+
 
 ### To Do
 Expense Tracker Service
@@ -96,6 +101,18 @@ poetry add git+https://github.com/Borghese-Gladiator/expense-tracker.git
 
 <details>
 <summary>Archive</summary>
+
+## Methodology
+```
+Aggregate by Interval
+APPROACH 1: custom build every group by incrementing arrow
+    PRO: easy increment
+    CON: hard group since I need to build bins and sort each into bins
+APPROACH 2: custom column and standard group by
+    PRO: easy group by
+    CON: wasted extra column AND unable to support weekly?
+```
+
 
 # Expense Aggregation
 Python ETL pipeline to build full transaction history from multiple credit cards

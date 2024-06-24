@@ -1,2 +1,2 @@
-from BaseDatasourceTypes import *
-from StatisticServiceTypes import *
+from .BaseDatasourceTypes import *
+from .StatisticServiceTypes import *

@@ -13,6 +13,6 @@ class StatisticServiceGroup(Enum):
     LOCATION = "location"
 
 class StatisticServiceAggregationInterval(Enum):
-    WEEKLY = "weekly"
+    # WEEKLY = "weekly"  # TODO: add support for weekly
     MONTHLY = "monthly"
     YEARLY = "yearly"

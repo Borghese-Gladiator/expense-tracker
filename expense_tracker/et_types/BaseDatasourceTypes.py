@@ -1,8 +1,16 @@
-import arrow
+from enum import Enum
+from typing import Optional
+
 import pandera as pa
-from pandera import DataFrameSchema, Column, Check
-from pandera import Series
-from pandera.engines import pandas_engine
+import pandas as pd
+from pandera.typing import Series
+from pandera.extensions import CheckType
+
+try:
+    from typing import Annotated  # python 3.9+
+except ImportError:
+    from typing_extensions import Annotated
+
 
 class CreditSource(Enum):
     CAPITAL_ONE = "capital_one"
@@ -14,30 +22,30 @@ class CreditSource(Enum):
 class Tag(Enum):
     RENT_APPLICABLE = "rent_applicable"
 
-# Define the schema using pandera SchemaModel
-class StatusListSchema(pa.SchemaModel):
-    statuses: pa.Series[List[Status]] = pa.Field(
-        check=pa.Check(lambda x: all(item in Status.__members__.values() for item in x))
-    )
 
-class TransactionsSchema(pa.SchemaModel):
-    # TODO: do I get dates in UTC or EST?
-    date: Series[
-        pandas_engine.DateTime(
-            to_datetime_kwargs = {"format":"%Y-%m-%dT%H:%M:%S"},
-            tz = "UTC"
-        )
-    ] = pa.Field()
+class TransactionsSchema(pa.DataFrameModel):
+    date: Series[Annotated[pd.DatetimeTZDtype, "utc"]] = pa.Field()
     name: Series[str] = pa.Field()
-    description: Series[str] = pa.Field(required=False)
+    description: Optional[Series[str]] = pa.Field()
     amount: Series[int] = pa.Field()
     category: Series[str] = pa.Field()
     merchant: Series[str] = pa.Field()
     location: Series[str] = pa.Field()
     
     source: Series[CreditSource] = pa.Field()
-    tags: pa.Series[pa.Nullable[list[Tag]]] = pa.Field(
+    tags: Series[list[Tag]] = pa.Field()
+    
+    """
+    source: Series[] = pa.Field() # pa.Field[pa.Enum[CreditSource]]
+    tags: pa.Field[pa.Set[pa.Enum[Tag]]]
+    tags: Series[str] = pa.Field()  # CSV str to parse
+    tags: Series[list[Tag]] = pa.Field(
         coerce=True,
-        default_factory=list,  # transforms None into []
-        check=pa.Check(lambda x: all(item in Tag.__members__.values() for item in x) if x is not None else None)
+        check_name=list,  # transforms None into []
     )
+    @pa.check("tags", name="foobar")
+    def custom_check(cls, tags: Series[list[Tag]]) -> Series[bool]:
+        if tags is None:
+            return []
+        return all(item in Tag.__members__.values() for item in tags)
+    """

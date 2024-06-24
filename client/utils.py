@@ -28,8 +28,8 @@ from typing import Any
 
 import arrow
 
-from expense_tracker.et_types.StatisticServiceTypes import StatisticServiceAggregationInterval, StatisticServiceGroup
-from expense_tracker.datasources.lunch_money import LunchMoneyDatasource
+from expense_tracker.et_types import StatisticServiceAggregationInterval, StatisticServiceGroup
+from expense_tracker.datasources.LunchMoneyDatasource import LunchMoneyDatasource
 from expense_tracker.services import StatisticService
 
 
@@ -58,21 +58,21 @@ def get_avg_monthly_ytd(filter_by = list[Any] or None):
         end_date,
         group_by=StatisticServiceGroup.CATEGORY,
         filter_by=filter_by,
-        aggregate_by=StatisticServiceAggregationInterval.MONTHLY
+        interval=StatisticServiceAggregationInterval.MONTHLY
     )
     top_merchant_groups = service.calculate(
         start_date,
         end_date,
         group_by=StatisticServiceGroup.MERCHANT,
         filter_by=filter_by,
-        aggregate_by=StatisticServiceAggregationInterval.MONTHLY
+        interval=StatisticServiceAggregationInterval.MONTHLY
     )[:5]
     top_location_groups = service.calculate(
         start_date,
         end_date,
         group_by=StatisticServiceGroup.MERCHANT,
         filter_by=filter_by,
-        aggregate_by=StatisticServiceAggregationInterval.MONTHLY
+        interval=StatisticServiceAggregationInterval.MONTHLY
     )[:5]
     
     return category_groups, top_merchant_groups, top_location_groups
