@@ -4,6 +4,11 @@ Ideally this will simplify sharing expense tracking from Lunch Money
 - PNG to group chat
 - Excel with results
 
+## Commands
+- `poetry install`
+- `poetry shell`
+- tests - `python -m unittest discover`
+
 ## Notes
 
 Flow of Data
@@ -26,13 +31,17 @@ Flow of Data
 	- show tables, graphs in local UI
 
 ### Caveats
+- ERROR: pandas `groupby` removing columns when converting to list of dicts?
+  - Solution: `reset_index` creates new columns from levels of index so it will convert nicely
+- ERROR: VSCode fails to find unittest tests and tries to use pytest
+  - Solution: add following to settings.json - `"python.experiments.optOutFrom": ["pythonTestAdapter"]`
 - `poetry add python-dotenv`
   - DO NOT install `dotenv` as that is a different package
 - ERROR: VSCode cannot find packages installed w/ Poetry
   - Solution: Cmd+Shift+P +  `Python: Select Interpreter` - selected 3.10.11 env that poetry created
 - `poetry add numpy==1.26`
   - NumPy had a major `2.0` release on 16 Jun 2024 (1 week ago) and that breaks Pandera's compatability with Pandas
-  - This command pins `numpy` version to one release previous
+  - This command pins `numpy` version to the release before that major `2.0` release
   - NOTE: Installing this required explicit python version too: `python = "<3.13,>=3.10"`
 
 
