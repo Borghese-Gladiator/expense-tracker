@@ -1,4 +1,4 @@
-import pandas as pd
+from typing import Set
 import arrow
 from arrow import Arrow
 from pandera.typing import DataFrame
@@ -25,12 +25,12 @@ class StatisticService:
         self,
         timeframe_start: Arrow,
         timeframe_end: Arrow,
-        filter_by: StatisticServiceFilter = None,
-        group_by_list: list[StatisticServiceGroup] = None,
+        filter_by_set: Set[StatisticServiceFilter] = None,
+        group_by_set: Set[StatisticServiceGroup] = None,
         interval: StatisticServiceAggregationInterval = None,
     ) -> list[dict]:
-        if group_by_list is None:
-            group_by_list = []
+        if group_by_set is None:
+            group_by_set = []
         if interval is None:
             interval = StatisticServiceAggregationInterval.MONTHLY
 
@@ -45,13 +45,17 @@ class StatisticService:
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
         
         # Filter by tags
-        df = df if filter_by is None else df[df['tags'].apply(lambda tags: filter_by.value in tags)]
+        # NOTE: tags <= filter_by_set is a subset comparison checking if tags is a subset of filter_by_set
+        if filter_by_set is not None:
+            df = df.assign(tags=df['tags'].apply(lambda x: None if x is None else set([StatisticServiceFilter(tag_str) for tag_str in x.split(',')])))
+            mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
+            df = df[mask]
         
         # Aggregate by interval (eg: monthly, yearly) and group_by (eg: category, merchant)
         # NOTE: grouping by columns means ALL other columns will be lost (besides"date" and group_by_list)
         df = df\
             .assign(date=lambda df: df["date"].apply(lambda x: x.format(self.interval_format_mapping[interval])))\
-            .groupby(['date'] + [group_by.value for group_by in group_by_list])[['amount']]\
+            .groupby(['date'] + [group_by.value for group_by in group_by_set])[['amount']]\
             .mean()\
             .reset_index()
         
@@ -61,7 +65,7 @@ class StatisticService:
         self,
         timeframe_start: Arrow,
         timeframe_end: Arrow,
-        filter_by: StatisticServiceFilter,
+        filter_by_set: Set[StatisticServiceFilter],
     ) -> list[dict]:
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions()
         
@@ -73,7 +77,11 @@ class StatisticService:
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
         
         # Filter by tags
-        df = df if filter_by is None else df[df['tags'].apply(lambda tags: filter_by.value in tags)]
+        # NOTE: tags <= filter_by_set is a subset comparison checking if tags is a subset of filter_by_set
+        if filter_by_set is not None:
+            df = df.assign(tags=df['tags'].apply(lambda x: None if x is None else set([StatisticServiceFilter(tag_str) for tag_str in x.split(',')])))
+            mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
+            df = df[mask]
         
         return df.to_dict(orient='records')
         

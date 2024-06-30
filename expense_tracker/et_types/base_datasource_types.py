@@ -2,16 +2,10 @@ from enum import Enum
 from typing import Optional
 
 import pandera as pa
-import pandas as pd
-from pandera import Timestamp
 from pandera.typing import Series
 
+from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter
 from expense_tracker.utils.date_utils import validate_date_str
-
-try:
-    from typing import Annotated  # python 3.9+
-except ImportError:
-    from typing_extensions import Annotated
 
 
 class CreditSource(Enum):
@@ -20,13 +14,6 @@ class CreditSource(Enum):
     DISCOVER = "discover"
     FIDELITY = "fidelity"
     PAYPAL = "paypal"
-    
-    @classmethod
-    def list(cls):
-        return list(map(lambda c: c.value, cls))
-
-class Tag(Enum):
-    RENT_APPLICABLE = "rent_applicable"
     
     @classmethod
     def list(cls):
@@ -55,25 +42,6 @@ class TransactionsSchema(pa.DataFrameModel):
     def custom_check(cls, tags: Series[list[str]]) -> Series[bool]:
         for tags_str in tags:
             for tag in tags_str.split(','):
-                if tag is not None and tag not in Tag.list():
+                if tag is not None and tag not in StatisticServiceFilter.list():
                     return False
         return True
-    
-    """
-    # date: Series[Annotated[pd.DatetimeTZDtype, 's', 'America/New_York']] = pa.Field()
-
-    source: Series[CreditSource] = pa.Field()
-
-    source: Series[] = pa.Field() # pa.Field[pa.Enum[CreditSource]]
-    tags: pa.Field[pa.Set[pa.Enum[Tag]]]
-    tags: Series[str] = pa.Field()  # CSV str to parse
-    tags: Series[list[Tag]] = pa.Field(
-        coerce=True,
-        check_name=list,  # transforms None into []
-    )
-    @pa.check("tags", name="foobar")
-    def custom_check(cls, tags: Series[list[Tag]]) -> Series[bool]:
-        if tags is None:
-            return []
-        return all(item in Tag.__members__.values() for item in tags)
-    """

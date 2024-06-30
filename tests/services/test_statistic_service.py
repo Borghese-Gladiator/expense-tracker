@@ -11,7 +11,7 @@ from expense_tracker.et_types import (
     StatisticServiceGroup, 
     StatisticServiceAggregationInterval
 )
-from expense_tracker.et_types.base_datasource_types import CreditSource, Tag
+from expense_tracker.et_types.base_datasource_types import CreditSource
 from expense_tracker.services import StatisticService
 
 class TestStatisticService(unittest.TestCase):
@@ -40,7 +40,7 @@ class TestStatisticService(unittest.TestCase):
             'category': ['Restaurants', 'Groceries', 'Gas', 'Gas', 'Groceries'],
             "location": [fake.address(), fake.address(), fake.address(), fake.address(), fake.address()],
             "source": [CreditSource.CAPITAL_ONE.value, CreditSource.CAPITAL_ONE.value, CreditSource.CAPITAL_ONE.value, CreditSource.FIDELITY.value, CreditSource.FIDELITY.value],
-            "tags": [Tag.RENT_APPLICABLE.value, None, None, None, Tag.RENT_APPLICABLE.value]
+            "tags": [StatisticServiceFilter.RENT_APPLICABLE.value, None, None, None, StatisticServiceFilter.RENT_APPLICABLE.value]
         }
         self.df = pd.DataFrame(data)
         self.mock_datasource.get_transactions.return_value = pd.DataFrame(data)
@@ -48,61 +48,74 @@ class TestStatisticService(unittest.TestCase):
     def test_calculate_monthly(self):
         timeframe_start = arrow.get('2023-01-01')
         timeframe_end = arrow.get('2023-12-31')
-        filter_by = None
-        group_by = StatisticServiceGroup.CATEGORY
         interval = StatisticServiceAggregationInterval.MONTHLY
 
-        expected_output = [
+        # Validate TIMEFRAME respected
+        self.assertEqual(self.service.calculate(
+            arrow.get('2023-03-10'),
+            arrow.get('2023-03-30'),
+            None,
+            None,
+            interval
+        ), [
+            {'date': '2023-03', 'amount': 316.6666666666667},
+        ])
+        
+        # Validate FILTER respected and non rent-applicable transactions are filtered out
+        self.assertEqual(self.service.calculate(
+            timeframe_start,
+            timeframe_end,
+            set([StatisticServiceFilter.RENT_APPLICABLE]),
+            None,
+            interval
+        ), [
+            {'date': '2023-01', 'amount': 100.0},
+            {'date': '2023-03', 'amount': 250.0},
+        ])
+
+        # Validate CATEGORY groups as expected and amounts are grouped by interval + category
+        self.assertEqual(self.service.calculate(
+            timeframe_start,
+            timeframe_end,
+            None,
+            set([StatisticServiceGroup.CATEGORY]),
+            interval
+        ), [
             {'date': '2023-01', 'category': 'Restaurants', 'amount': 100.0},
             {'date': '2023-02', 'category': 'Groceries', 'amount': 200.0},
             {'date': '2023-03', 'category': 'Gas', 'amount': 350.0},
             {'date': '2023-03', 'category': 'Groceries', 'amount': 250.0},
-        ]
+        ])
 
-        result = self.service.calculate(
-            timeframe_start,
-            timeframe_end,
-            filter_by,
-            [group_by],
-            interval
-        )
-
-        self.assertEqual(result, expected_output)
 
     def test_calculate_yearly(self):
         timeframe_start = arrow.get('2023-01-01')
         timeframe_end = arrow.get('2023-12-31')
-        filter_by = None
-        group_by = StatisticServiceGroup.CATEGORY
         interval = StatisticServiceAggregationInterval.YEARLY
-
-        expected_output = [
+        
+        self.assertEqual(self.service.calculate(
+            timeframe_start,
+            timeframe_end,
+            None,
+            set([StatisticServiceGroup.CATEGORY]),
+            interval
+        ), [
             {'amount': 350.0, 'category': 'Gas', 'date': '2023'},
             {'amount': 225.0, 'category': 'Groceries', 'date': '2023'},
             {'amount': 100.0, 'category': 'Restaurants', 'date': '2023'}
-        ]
-
-        result = self.service.calculate(
-            timeframe_start,
-            timeframe_end,
-            filter_by,
-            [group_by],
-            interval
-        )
-
-        self.assertEqual(result, expected_output)
+        ])
 
     def test_get_with_tag_filter(self):
         timeframe_start = arrow.get('2023-01-01')
         timeframe_end = arrow.get('2023-12-31')
-        filter_by = Tag.RENT_APPLICABLE
+        filter_by = StatisticServiceFilter.RENT_APPLICABLE
 
         expected_output = self.df[self.df['tags'].apply(lambda tags: filter_by.value in tags)].to_dict(orient='records')
 
         result = self.service.get(
             timeframe_start,
             timeframe_end,
-            filter_by
+            set([filter_by])
         )
 
         self.assertEqual(result, expected_output)
