@@ -6,7 +6,7 @@ from pandera.typing import DataFrame
 from expense_tracker.et_types import TransactionsSchema
 from expense_tracker.datasources.BaseDatasource import BaseDatasource
 from expense_tracker.utils.settings import LUNCH_MONEY_ACCESS_TOKEN
-
+from expense_tracker.et_types.BaseDatasourceTypes import CreditSource, Tag
 
 class LunchMoneyDatasource(BaseDatasource):
     base_url: str = 'https://dev.lunchmoney.app'
@@ -24,24 +24,22 @@ class LunchMoneyDatasource(BaseDatasource):
         """
         from faker import Faker
         import random
-        from expense_tracker.et_types.BaseDatasourceTypes import CreditSource, Tag
         fake = Faker()
         num_records = 10
         data = {
-            "date": [fake.date_time() for _ in range(num_records)],
-            "name": [fake.company() for _ in range(num_records)],
+            "date": [pd.Timestamp('2023-01-01', tz='America/New_York') for i in range(num_records)],
+            "merchant": [fake.company() for _ in range(num_records)],
             "description": [fake.sentence() if random.random() < 0.5 else None for _ in range(num_records)],
             "amount": [random.randint(10, 1000) for _ in range(num_records)],
             "category": [fake.word() for _ in range(num_records)],
-            "merchant": [fake.company() for _ in range(num_records)],
             "location": [fake.address() for _ in range(num_records)],
-            "source": [random.choice(list(CreditSource)) for _ in range(num_records)],
-            "tags": [[random.choice(list(Tag)) for _ in range(random.randint(0, 3)) if random.random() < 0.8] for _ in range(num_records)]
+            "source": [CreditSource.CAPITAL_ONE.value for i in range(num_records)],
+            "tags": [Tag.RENT_APPLICABLE.value for i in range(num_records)]
         }
         df = pd.DataFrame(data)
         validated_df = TransactionsSchema.validate(df)
         return validated_df
-        print("REACHED")
+        
         """
         tags: Series[list[Tag]] = pa.Field(
             coerce=True,
@@ -52,6 +50,5 @@ class LunchMoneyDatasource(BaseDatasource):
             if tags is None:
                 return []
             return all(item in Tag.__members__.values() for item in tags)
-        """
         return validated_df
-    
+        """

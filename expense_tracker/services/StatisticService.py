@@ -25,11 +25,11 @@ class StatisticService:
         interval: StatisticServiceAggregationInterval,
     ) -> list[dict]:
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions()
-        # Apply the time filter
+        # Filter by time
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
-        # Apply the filter by 'tags'
-        df = df if filter_by is None else df[df['tags'].apply(lambda tags: filter_by in tags)]
-        # Apply the group by columns (eg: category, merchant, location)
+        # Filter by tags
+        df = df if filter_by is None else df[df['tags'].apply(lambda tags: filter_by.value in tags)]
+        # Group by columns Apply the group by columns (eg: category, merchant, location)
         df = df.groupby(group_by.value)
         # Apply the group by and aggregate by interval (eg: monthly, yearly)
         interval_mapping = {
