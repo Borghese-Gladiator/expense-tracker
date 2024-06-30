@@ -1,1 +1,1 @@
-from .StatisticService import *
+from .statistic_service import *

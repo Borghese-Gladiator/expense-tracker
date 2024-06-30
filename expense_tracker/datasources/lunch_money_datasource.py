@@ -4,9 +4,9 @@ import pandas as pd
 from pandera.typing import DataFrame
 
 from expense_tracker.et_types import TransactionsSchema
-from expense_tracker.datasources.BaseDatasource import BaseDatasource
+from expense_tracker.datasources.base_datasource import BaseDatasource
 from expense_tracker.utils.settings import LUNCH_MONEY_ACCESS_TOKEN
-from expense_tracker.et_types.BaseDatasourceTypes import CreditSource, Tag
+from expense_tracker.et_types.base_datasource_types import CreditSource, Tag
 
 class LunchMoneyDatasource(BaseDatasource):
     base_url: str = 'https://dev.lunchmoney.app'

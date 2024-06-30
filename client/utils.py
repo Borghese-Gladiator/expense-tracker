@@ -29,7 +29,7 @@ from typing import Any
 import arrow
 
 from expense_tracker.et_types import StatisticServiceAggregationInterval, StatisticServiceGroup
-from expense_tracker.datasources.LunchMoneyDatasource import LunchMoneyDatasource
+from expense_tracker.datasources.lunch_money_datasource import LunchMoneyDatasource
 from expense_tracker.services import StatisticService
 
 
