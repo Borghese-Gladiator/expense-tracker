@@ -33,12 +33,13 @@ class StatisticService:
             group_by_list = []
         if interval is None:
             interval = StatisticServiceAggregationInterval.MONTHLY
-        
+
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions()
         
         # Add date column for comparison
-        df['date'] = df['date_str'].apply(lambda date_str: arrow.get(date_str, 'YYYY-MM-DD'))
-        df = df.drop('date_str', axis=1)
+        df = df\
+            .assign(date=lambda df: df["date_str"].apply(lambda x: arrow.get(x, "YYYY-MM-DD")))\
+            .drop("date_str", axis=1)
         
         # Filter by time
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
@@ -46,10 +47,13 @@ class StatisticService:
         # Filter by tags
         df = df if filter_by is None else df[df['tags'].apply(lambda tags: filter_by.value in tags)]
         
-        # Aggregate by interval and group_by (eg: monthly, yearly)
-        # NOTE: grouping by columns means other columns will be lost in final output
-        df['date'] = df['date'].apply(lambda date: date.format(self.interval_format_mapping[interval]))
-        df = df.groupby(['date'] + [group_by.value for group_by in group_by_list])[['amount']].mean().reset_index()
+        # Aggregate by interval (eg: monthly, yearly) and group_by (eg: category, merchant)
+        # NOTE: grouping by columns means ALL other columns will be lost (besides"date" and group_by_list)
+        df = df\
+            .assign(date=lambda df: df["date"].apply(lambda x: x.format(self.interval_format_mapping[interval])))\
+            .groupby(['date'] + [group_by.value for group_by in group_by_list])[['amount']]\
+            .mean()\
+            .reset_index()
         
         return df.to_dict(orient='records')
 
