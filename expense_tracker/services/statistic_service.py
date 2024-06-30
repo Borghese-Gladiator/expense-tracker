@@ -64,9 +64,16 @@ class StatisticService:
         filter_by: StatisticServiceFilter,
     ) -> list[dict]:
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions()
-        # Apply the time filter
+        
+        # Add date column for comparison
+        df['date'] = df['date_str'].apply(lambda date_str: arrow.get(date_str, 'YYYY-MM-DD'))
+        df = df.drop('date_str', axis=1)
+
+        # Filter by time
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
-        # Apply the filter by 'tags'
-        df = df[df['tags'].apply(lambda tags: filter_by in tags)]
+        
+        # Filter by tags
+        df = df if filter_by is None else df[df['tags'].apply(lambda tags: filter_by.value in tags)]
+        
         return df.to_dict(orient='records')
         
