@@ -23,6 +23,12 @@ class LunchMoneyDatasource(BaseDatasource):
         headers = self.default_headers
         params = {}
         response = requests.get(endpoint, headers=headers, params=params)
+
+        
+        
+        df: DataFrame[BaseTransactionsSchema] = blah
+        df: DataFrame[TransactionsSchema] = transform(df)
+
         """
         from faker import Faker
         import random

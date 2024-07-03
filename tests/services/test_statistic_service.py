@@ -13,6 +13,7 @@ from expense_tracker.et_types import (
 )
 from expense_tracker.et_types.base_datasource_types import CreditSource
 from expense_tracker.services import StatisticService
+from expense_tracker.services.statistic_service import Transaction
 
 class TestStatisticService(unittest.TestCase):
     def setUp(self):
@@ -21,12 +22,12 @@ class TestStatisticService(unittest.TestCase):
 
         fake = Faker()
         data = {
-            'date_str': [
-                '2023-01-01',
-                '2023-02-15',
-                '2023-03-10',
-                '2023-03-30',
-                '2023-03-10',
+            'date': [
+                arrow.get('2023-01-01', "YYYY-MM-DD"),
+                arrow.get('2023-02-15', "YYYY-MM-DD"),
+                arrow.get('2023-03-10', "YYYY-MM-DD"),
+                arrow.get('2023-03-30', "YYYY-MM-DD"),
+                arrow.get('2023-03-10', "YYYY-MM-DD"),
             ],
             "merchant": [
                 "Stop & Shop",
@@ -39,16 +40,16 @@ class TestStatisticService(unittest.TestCase):
             'amount': [100.0, 200.0, 300.0, 400.0, 250.0],
             'category': ['Restaurants', 'Groceries', 'Gas', 'Gas', 'Groceries'],
             "location": [fake.address(), fake.address(), fake.address(), fake.address(), fake.address()],
-            "source": [CreditSource.CAPITAL_ONE.value, CreditSource.CAPITAL_ONE.value, CreditSource.CAPITAL_ONE.value, CreditSource.FIDELITY.value, CreditSource.FIDELITY.value],
-            "tags": [StatisticServiceFilter.RENT_APPLICABLE.value, None, None, None, StatisticServiceFilter.RENT_APPLICABLE.value]
+            "source": [CreditSource.CAPITAL_ONE, CreditSource.CAPITAL_ONE, CreditSource.CAPITAL_ONE, CreditSource.FIDELITY, CreditSource.FIDELITY],
+            "tags": [{StatisticServiceFilter.RENT_APPLICABLE}, None, None, None, {StatisticServiceFilter.RENT_APPLICABLE}]
         }
         self.df = pd.DataFrame(data)
         self.mock_datasource.get_transactions.return_value = pd.DataFrame(data)
 
-    def test_calculate_monthly(self):
+    def test_calculate(self):
         timeframe_start = arrow.get('2023-01-01')
         timeframe_end = arrow.get('2023-12-31')
-        interval = StatisticServiceAggregationInterval.MONTHLY
+        monthly_interval = StatisticServiceAggregationInterval.MONTHLY
 
         # Validate TIMEFRAME respected
         self.assertEqual(self.service.calculate(
@@ -56,7 +57,7 @@ class TestStatisticService(unittest.TestCase):
             arrow.get('2023-03-30'),
             None,
             None,
-            interval
+            monthly_interval
         ), [
             {'date': '2023-03', 'amount': 316.6666666666667},
         ])
@@ -67,7 +68,7 @@ class TestStatisticService(unittest.TestCase):
             timeframe_end,
             set([StatisticServiceFilter.RENT_APPLICABLE]),
             None,
-            interval
+            monthly_interval
         ), [
             {'date': '2023-01', 'amount': 100.0},
             {'date': '2023-03', 'amount': 250.0},
@@ -79,46 +80,68 @@ class TestStatisticService(unittest.TestCase):
             timeframe_end,
             None,
             set([StatisticServiceGroup.CATEGORY]),
-            interval
+            monthly_interval
         ), [
             {'date': '2023-01', 'category': 'Restaurants', 'amount': 100.0},
             {'date': '2023-02', 'category': 'Groceries', 'amount': 200.0},
             {'date': '2023-03', 'category': 'Gas', 'amount': 350.0},
             {'date': '2023-03', 'category': 'Groceries', 'amount': 250.0},
         ])
-
-
-    def test_calculate_yearly(self):
-        timeframe_start = arrow.get('2023-01-01')
-        timeframe_end = arrow.get('2023-12-31')
-        interval = StatisticServiceAggregationInterval.YEARLY
         
+        # Validate YEARLY aggregation interval
         self.assertEqual(self.service.calculate(
             timeframe_start,
             timeframe_end,
             None,
             set([StatisticServiceGroup.CATEGORY]),
-            interval
+            StatisticServiceAggregationInterval.YEARLY
         ), [
             {'amount': 350.0, 'category': 'Gas', 'date': '2023'},
             {'amount': 225.0, 'category': 'Groceries', 'date': '2023'},
             {'amount': 100.0, 'category': 'Restaurants', 'date': '2023'}
         ])
 
-    def test_get_with_tag_filter(self):
+    def test_get(self):
+        def _convert_df_input_to_output(df: pd.DataFrame) -> list[Transaction]:
+            return (
+                df
+                .assign(date=lambda df: df["date_str"].apply(lambda x: arrow.get(x, "YYYY-MM-DD")))
+                .drop("date_str", axis=1)
+                .to_dict(orient='records')
+            )
+            
         timeframe_start = arrow.get('2023-01-01')
         timeframe_end = arrow.get('2023-12-31')
-        filter_by = StatisticServiceFilter.RENT_APPLICABLE
 
-        expected_output = self.df[self.df['tags'].apply(lambda tags: filter_by.value in tags)].to_dict(orient='records')
-
-        result = self.service.get(
+        # Validate TIMEFRAME respected
+        self.assertEqual(self.service.get(
+            arrow.get('2023-03-10'),
+            arrow.get('2023-03-30'),
+            None,
+        ), self.df.iloc[[2, 3, 4]].to_dict(orient='records'))
+        
+        # Validate FILTER respected and non rent-applicable transactions are filtered out
+        self.assertEqual(self.service.get(
             timeframe_start,
             timeframe_end,
-            set([filter_by])
-        )
-
-        self.assertEqual(result, expected_output)
+            set([StatisticServiceFilter.RENT_APPLICABLE]),
+        ), self.df.iloc[[0, 4]].to_dict(orient='records'))
+        # Validate with empty list of transactions
+        self.mock_datasource.get_transactions.return_value = pd.DataFrame({
+            'date': [],
+            "merchant": [],
+            "description": [],
+            'amount': [],
+            'category': [],
+            "location": [],
+            "source": [],
+            "tags": []
+        })
+        self.assertEqual(self.service.get(
+            timeframe_start,
+            timeframe_end,
+            set([StatisticServiceFilter.RENT_APPLICABLE]),
+        ), [])
 
 if __name__ == '__main__':
     unittest.main()
