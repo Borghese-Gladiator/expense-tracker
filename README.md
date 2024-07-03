@@ -56,10 +56,10 @@ Expense Tracker Service
     - [ ] write results to file to permanently cache
 - service
   - StatisticService
-    - [ ] calculate
-    - [ ] get
+    - [X] calculate
+    - [X] get
 - client
-  - [ ] types
+  - [X] types
   - [ ] Streamlit
   - [ ] PNG summary 
     - [ ] spike: Discord integration
@@ -121,7 +121,6 @@ APPROACH 2: custom column and standard group by
     PRO: easy group by
     CON: wasted extra column AND unable to support weekly?
 ```
-
 
 # Expense Aggregation
 Python ETL pipeline to build full transaction history from multiple credit cards
