@@ -10,6 +10,7 @@ from expense_tracker.et_types import (
     StatisticServiceGroup, 
     StatisticServiceAggregationInterval
 )
+from expense_tracker.et_types.statistic_service_types import Timeframe
 
 class Transaction(TypedDict):
     date: arrow.Arrow
@@ -44,7 +45,7 @@ class StatisticService:
         if interval is None:
             interval = StatisticServiceAggregationInterval.MONTHLY
 
-        df: DataFrame[TransactionsSchema] = self.datasource.get_transactions()
+        df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
         
         # Filter by time
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
@@ -71,7 +72,7 @@ class StatisticService:
         timeframe_end: Arrow,
         filter_by_set: Set[StatisticServiceFilter],
     ) -> list[Transaction]:
-        df: DataFrame[TransactionsSchema] = self.datasource.get_transactions()
+        df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
 
         # Filter by time
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]

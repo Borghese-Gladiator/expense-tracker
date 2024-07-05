@@ -41,7 +41,7 @@ class TestStatisticService(unittest.TestCase):
             'category': ['Restaurants', 'Groceries', 'Gas', 'Gas', 'Groceries'],
             "location": [fake.address(), fake.address(), fake.address(), fake.address(), fake.address()],
             "source": [CreditSource.CAPITAL_ONE, CreditSource.CAPITAL_ONE, CreditSource.CAPITAL_ONE, CreditSource.FIDELITY, CreditSource.FIDELITY],
-            "tags": [{StatisticServiceFilter.RENT_APPLICABLE}, None, None, None, {StatisticServiceFilter.RENT_APPLICABLE}]
+            "tags": [{StatisticServiceFilter.BROTHER_RENT}, None, None, None, {StatisticServiceFilter.BROTHER_RENT}]
         }
         self.df = pd.DataFrame(data)
         self.mock_datasource.get_transactions.return_value = pd.DataFrame(data)
@@ -66,7 +66,7 @@ class TestStatisticService(unittest.TestCase):
         self.assertEqual(self.service.calculate(
             timeframe_start,
             timeframe_end,
-            set([StatisticServiceFilter.RENT_APPLICABLE]),
+            set([StatisticServiceFilter.BROTHER_RENT]),
             None,
             monthly_interval
         ), [
@@ -124,7 +124,7 @@ class TestStatisticService(unittest.TestCase):
         self.assertEqual(self.service.get(
             timeframe_start,
             timeframe_end,
-            set([StatisticServiceFilter.RENT_APPLICABLE]),
+            set([StatisticServiceFilter.BROTHER_RENT]),
         ), self.df.iloc[[0, 4]].to_dict(orient='records'))
         # Validate with empty list of transactions
         self.mock_datasource.get_transactions.return_value = pd.DataFrame({
@@ -140,7 +140,7 @@ class TestStatisticService(unittest.TestCase):
         self.assertEqual(self.service.get(
             timeframe_start,
             timeframe_end,
-            set([StatisticServiceFilter.RENT_APPLICABLE]),
+            set([StatisticServiceFilter.BROTHER_RENT]),
         ), [])
 
 if __name__ == '__main__':

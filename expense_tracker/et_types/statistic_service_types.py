@@ -1,10 +1,13 @@
+from dataclasses import dataclass
 from enum import Enum
+
+from arrow import Arrow
 
 
 # TODO: dynamic tags based on datasource
 # Currently hard coded tag names from Lunch Money
 class StatisticServiceFilter(Enum):
-    RENT_APPLICABLE = "rent_applicable"
+    BROTHER_RENT = "Brother Rent"
     
     @classmethod
     def list(cls):
@@ -22,3 +25,11 @@ class StatisticServiceAggregationInterval(Enum):
     # WEEKLY = "weekly"  # TODO: add support for weekly
     MONTHLY = "monthly"
     YEARLY = "yearly"
+
+@dataclass
+class Timeframe:
+    start: Arrow
+    end: Arrow
+
+    def format(self, format_str: str) -> tuple[str, str]:
+        return self.start.format(format_str), self.end.format(format_str)

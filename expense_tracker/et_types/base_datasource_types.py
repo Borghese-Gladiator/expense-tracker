@@ -1,32 +1,38 @@
 from enum import Enum
-from typing import Optional
+from dataclasses import dataclass
+from typing import Optional, TypedDict
 
 import arrow
 import pandera as pa
+from arrow import Arrow
 from pandera.typing import Series, DataFrame
 
 from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter
 from expense_tracker.utils.date_utils import validate_date_str
 
+"""
+NOTE: pandera requires "str" and will not recognize "str | None"
+"""
 
 class CreditSource(Enum):
-    CAPITAL_ONE = "capital_one"
-    CHASE = "chase"
-    DISCOVER = "discover"
-    FIDELITY = "fidelity"
-    PAYPAL = "paypal"
+    CAPITAL_ONE = "Capital One"
+    CHASE = "Chase"
+    DISCOVER = "Discover"
+    FIDELITY = "Fidelity"
+    PAYPAL = "PayPal"
+    MANUAL = "manual"
     
     @classmethod
     def list(cls):
         return list(map(lambda c: c.value, cls))
 
-
+"""
 class BaseTransactionsSchema(pa.DataFrameModel):
     raw_date: Series[str] = pa.Field()
     raw_source: Series[str] = pa.Field()
-    raw_tags: Series[Optional[str]] = pa.Field()
+    raw_tags: Series[str] = pa.Field()
     merchant: Series[str] = pa.Field()
-    description: Optional[Series[str]] = pa.Field()
+    description: Series[str] = pa.Field()
     amount: Series[int] = pa.Field()
     category: Series[str] = pa.Field()
     location: Series[str] = pa.Field()
@@ -46,20 +52,6 @@ class BaseTransactionsSchema(pa.DataFrameModel):
                 if tag is not None and tag not in StatisticServiceFilter.list():
                     return False
         return True
-
-class TransactionsSchema(pa.DataFrameModel):
-    """
-    NOTE: Cannot inherit from BaseTransactionsSchema since I deleted the raw columns
-    """
-    date: Series[arrow.Arrow] = pa.Field()
-    source: Series[CreditSource] = pa.Field()
-    tags: Series[Optional[StatisticServiceFilter]] = pa.Field()
-    # unofficially inherited attributes from BaseTransactionsSchema
-    merchant: Series[str] = pa.Field()
-    description: Optional[Series[str]] = pa.Field()
-    amount: Series[int] = pa.Field()
-    category: Series[str] = pa.Field()
-    location: Series[str] = pa.Field()
 
 @pa.check_types
 def transform(df: DataFrame[BaseTransactionsSchema]) -> DataFrame[TransactionsSchema]:
@@ -88,3 +80,24 @@ def transform(df: DataFrame[BaseTransactionsSchema]) -> DataFrame[TransactionsSc
     )
 
     return df
+"""
+
+class TransactionsSchema(pa.DataFrameModel):
+    date: Series[Arrow] = pa.Field()
+    source: Series[CreditSource] = pa.Field()
+    tags: Series[Optional[StatisticServiceFilter]] = pa.Field()
+    merchant: Series[str] = pa.Field()
+    description: Series[str] = pa.Field()
+    amount: Series[int] = pa.Field()
+    category: Series[str] = pa.Field()
+    location: Series[str] = pa.Field()
+
+class TransactionDict(TypedDict):
+    date: Arrow
+    amount: int
+    merchant: str
+    category: str
+    description: str | None
+    source: CreditSource
+    tags: list[StatisticServiceFilter] | None
+    location: str
