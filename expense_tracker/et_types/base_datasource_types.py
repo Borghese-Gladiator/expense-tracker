@@ -10,10 +10,6 @@ from pandera.typing import Series, DataFrame
 from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter
 from expense_tracker.utils.date_utils import validate_date_str
 
-"""
-NOTE: pandera requires "str" and will not recognize "str | None"
-"""
-
 class CreditSource(Enum):
     CAPITAL_ONE = "Capital One"
     CHASE = "Chase"
@@ -26,6 +22,30 @@ class CreditSource(Enum):
     def list(cls):
         return list(map(lambda c: c.value, cls))
 
+class TransactionsSchema(pa.DataFrameModel):
+    date: Series[Arrow] = pa.Field()
+    source: Series[CreditSource] = pa.Field()
+    tags: Series[Optional[StatisticServiceFilter]] = pa.Field()
+    merchant: Series[str] = pa.Field()
+    description: Series[str] = pa.Field()
+    amount: Series[int] = pa.Field()
+    category: Series[str] = pa.Field()
+    location: Series[str] = pa.Field()
+
+class TransactionDict(TypedDict):
+    date: Arrow
+    amount: int
+    merchant: str
+    category: str
+    description: str | None
+    source: CreditSource
+    tags: list[StatisticServiceFilter] | None
+    location: str
+
+
+"""
+NOTE: pandera does NOT recognize `Optional[str]` nor `str | None` (It works for DataFrame Schemas but not DataFrame Models like below)
+"""
 """
 class BaseTransactionsSchema(pa.DataFrameModel):
     raw_date: Series[str] = pa.Field()
@@ -81,23 +101,3 @@ def transform(df: DataFrame[BaseTransactionsSchema]) -> DataFrame[TransactionsSc
 
     return df
 """
-
-class TransactionsSchema(pa.DataFrameModel):
-    date: Series[Arrow] = pa.Field()
-    source: Series[CreditSource] = pa.Field()
-    tags: Series[Optional[StatisticServiceFilter]] = pa.Field()
-    merchant: Series[str] = pa.Field()
-    description: Series[str] = pa.Field()
-    amount: Series[int] = pa.Field()
-    category: Series[str] = pa.Field()
-    location: Series[str] = pa.Field()
-
-class TransactionDict(TypedDict):
-    date: Arrow
-    amount: int
-    merchant: str
-    category: str
-    description: str | None
-    source: CreditSource
-    tags: list[StatisticServiceFilter] | None
-    location: str
