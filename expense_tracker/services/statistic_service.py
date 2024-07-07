@@ -1,4 +1,4 @@
-from typing import Set, TypedDict
+from typing import TypedDict
 import arrow
 from arrow import Arrow
 from pandera.typing import DataFrame
@@ -36,8 +36,8 @@ class StatisticService:
         self,
         timeframe_start: Arrow,
         timeframe_end: Arrow,
-        filter_by_set: Set[StatisticServiceFilter] = None,
-        group_by_set: Set[StatisticServiceGroup] = None,
+        filter_by_set: set[StatisticServiceFilter] = None,
+        group_by_set: set[StatisticServiceGroup] = None,
         interval: StatisticServiceAggregationInterval = None,
     ) -> list[dict]:
         if group_by_set is None:
@@ -70,7 +70,7 @@ class StatisticService:
         self,
         timeframe_start: Arrow,
         timeframe_end: Arrow,
-        filter_by_set: Set[StatisticServiceFilter],
+        filter_by_set: set[StatisticServiceFilter],
     ) -> list[Transaction]:
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
 

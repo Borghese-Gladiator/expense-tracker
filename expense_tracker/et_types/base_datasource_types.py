@@ -1,14 +1,13 @@
 from enum import Enum
-from dataclasses import dataclass
-from typing import Optional, Set, TypedDict
+from typing import Optional, TypedDict
 
-import arrow
 import pandera as pa
 from arrow import Arrow
-from pandera.typing import Series, DataFrame
+from pandera.typing import Series
 
 from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter
 from expense_tracker.utils.date_utils import validate_date_str
+
 
 class CreditSource(Enum):
     CAPITAL_ONE = "Capital One"
@@ -25,7 +24,7 @@ class CreditSource(Enum):
 class TransactionsSchema(pa.DataFrameModel):
     date: Series[Arrow] = pa.Field()
     source: Series[CreditSource] = pa.Field()
-    tags: Series[Optional[StatisticServiceFilter]] = pa.Field()
+    tags: Series[Optional[set[StatisticServiceFilter]]] = pa.Field()
     merchant: Series[str] = pa.Field()
     description: Series[str] = pa.Field()
     amount: Series[int] = pa.Field()
@@ -39,7 +38,7 @@ class TransactionDict(TypedDict):
     category: str
     description: str | None
     source: CreditSource
-    tags: Set[StatisticServiceFilter] | None
+    tags: set[StatisticServiceFilter] | None
     location: str
 
 

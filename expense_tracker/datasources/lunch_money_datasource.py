@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 import arrow
@@ -7,23 +8,30 @@ from arrow import Arrow
 from pandera.typing import DataFrame
 
 from expense_tracker.et_types import TransactionsSchema
-from expense_tracker.datasources.base_datasource import BaseDatasource
+from expense_tracker.datasources.base_datasource import BaseDatasource, BaseDatasourceSettings
 from expense_tracker.et_types.base_datasource_types import CreditSource, TransactionDict
 from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter, Timeframe
-from expense_tracker.utils.settings import LUNCH_MONEY_ACCESS_TOKEN
 
 
 class TxnStatus(Enum):
     CLEARED = "cleared"
     UNCLEARED = "uncleared"
 
+@dataclass
+class LunchMoneyDatasourceSettings(BaseDatasourceSettings):
+    access_token: str
+
+
 class LunchMoneyDatasource(BaseDatasource):
     base_url: str = 'https://dev.lunchmoney.app'
-    default_headers = {
-        'Authorization': f'Bearer {LUNCH_MONEY_ACCESS_TOKEN}',
-        'Content-Type': 'application/json'
-    }
     timeframe_format: str = "YYYY-MM-DD"
+
+    def __init__(self, settings: LunchMoneyDatasourceSettings):
+        self.access_token = settings.access_token
+        self.default_headers = {
+            'Authorization': f'Bearer {self.access_token}',
+            'Content-Type': 'application/json'
+        }
 
     def get_transactions(self, timeframe: Timeframe) -> DataFrame[TransactionsSchema]:
         """
@@ -72,4 +80,3 @@ class LunchMoneyDatasource(BaseDatasource):
                 # TODO(07/04/2024) - add "location" when lunch money adds it to API
             })
         return res
-    
