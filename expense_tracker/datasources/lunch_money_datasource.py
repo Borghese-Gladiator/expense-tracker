@@ -68,7 +68,7 @@ class LunchMoneyDatasource(BaseDatasource):
                 'category': txn['category_name'],
                 'description': txn['notes'],
                 'source': CreditSource.MANUAL if txn['source'] == 'manual' else CreditSource(txn['institution_name']),
-                'tags': [StatisticServiceFilter(tag["name"]) for tag in txn["tags"]],
+                'tags': set([StatisticServiceFilter(tag["name"]) for tag in txn["tags"]]),
                 # TODO(07/04/2024) - add "location" when lunch money adds it to API
             })
         return res

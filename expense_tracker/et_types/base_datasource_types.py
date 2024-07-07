@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, TypedDict
+from typing import Optional, Set, TypedDict
 
 import arrow
 import pandera as pa
@@ -39,7 +39,7 @@ class TransactionDict(TypedDict):
     category: str
     description: str | None
     source: CreditSource
-    tags: list[StatisticServiceFilter] | None
+    tags: Set[StatisticServiceFilter] | None
     location: str
 
 
