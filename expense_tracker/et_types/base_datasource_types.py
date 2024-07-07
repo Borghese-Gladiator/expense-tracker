@@ -24,7 +24,7 @@ class CreditSource(Enum):
 class TransactionsSchema(pa.DataFrameModel):
     date: Series[Arrow] = pa.Field()
     source: Series[CreditSource] = pa.Field()
-    tags: Series[Optional[set[StatisticServiceFilter]]] = pa.Field()
+    tags: Series[set[StatisticServiceFilter]] = pa.Field()
     merchant: Series[str] = pa.Field()
     description: Series[str] = pa.Field()
     amount: Series[int] = pa.Field()

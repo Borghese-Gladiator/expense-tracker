@@ -71,7 +71,7 @@ class LunchMoneyDatasource(BaseDatasource):
         for txn in txn_list:
             res.append({
                 'date': arrow.get(txn['date'], self.timeframe_format),
-                'amount': txn['amount'],
+                'amount': float(txn['amount']),
                 'merchant': txn['payee'],
                 'category': txn['category_name'],
                 'description': txn['notes'],

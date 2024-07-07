@@ -40,6 +40,8 @@ class StatisticService:
         group_by_set: set[StatisticServiceGroup] = None,
         interval: StatisticServiceAggregationInterval = None,
     ) -> list[dict]:
+        if filter_by_set is None:
+            filter_by_set = set()
         if group_by_set is None:
             group_by_set = []
         if interval is None:
@@ -52,7 +54,7 @@ class StatisticService:
         
         # Filter by tags
         # NOTE: tags <= filter_by_set is a subset comparison checking if tags is a subset of filter_by_set
-        if filter_by_set is not None:
+        if len(filter_by_set) >= 0:
             mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
             df = df[mask]
         
