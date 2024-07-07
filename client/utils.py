@@ -6,7 +6,6 @@ aggregate_by=MONTHLY
 
 How To Do YTD (rent applicable) => aggregate on month, filter on rent_applicable tag
 category = calculate(timeframe_start, timeframe_end, group_by=category, filter_by=Tag.BROTHER_RENT, aggregate_by=MONTHLY)
-top_five_merchants = calculate(timeframe_start, timeframe_end, group_by=merchant, sort_by=amount, filter_by=Tag.BROTHER_RENT, aggregate_by=MONTHLY)
 top_five_locations = calculate(timeframe_start, timeframe_end, group_by=location, filter_by=Tag.BROTHER_RENT, sort_by=(amount, DESC))
 
 How to Do Last Month
