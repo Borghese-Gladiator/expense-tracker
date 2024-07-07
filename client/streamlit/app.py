@@ -1,3 +1,52 @@
+import arrow
+import streamlit as st
+import plotly.express as px
+import pandas as pd
+
+from client.utils import get_avg_monthly_ytd
+
+
+#==================
+#  CONSTANTS
+#==================
+this_month_str: str = arrow.now().format("YYYY/MM")
+category_groups_df, top_merchant_groups_df = get_avg_monthly_ytd()
+print(category_groups_df.head())
+print(top_merchant_groups_df.head())
+# print(top_location_groups.head())
+
+#==================
+#  MAIN
+#==================
+st.title(f"Streamlit App for Expense Summary for {this_month_str}")
+
+# TRANSACTION table
+st.subheader("Transaction List")
+st.dataframe(df, use_container_width=True)
+
+# CATEGORY graphs
+st.subheader("Category Summary")
+st.plotly_chart(
+    px.bar(
+        data_frame = category_groups_df,
+        x = "date",
+        y = ["category", "amount"],
+        orientation = "v",
+        barmode = 'group',
+        title = 'YTD Monthly Average (all) - Category'
+    )
+)
+st.plotly_chart(
+    px.bar(
+        data_frame = top_merchant_groups_df,
+        x = "date",
+        y = ["merchant", "amount"],
+        orientation = "v",
+        barmode = 'group',
+        title = 'YTD Monthly Average (all) - Category'
+    )
+)
+
 """
 ytd_monthly_panel_all_panel
 ytd_monthly_panel_rent_applicable_panel
@@ -24,12 +73,12 @@ Last Month (May + Rent Applicable)
 - top merchants
 - top locations
 
-YTD Expenditure
+YTD Expenditure => requires all transactions (sorted) and continuously increase
 - YTD Spending - line graph of each transaction 
 - YTD Spending (rent applicable) - line graph
 
 """
-
+"""
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -111,3 +160,5 @@ st.bar_chart(location_may)
 
 # Last Month (May + Rent Applicable)
 may_rent_df = may_df
+
+"""
