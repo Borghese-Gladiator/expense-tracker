@@ -43,7 +43,7 @@ class StatisticService:
         if filter_by_set is None:
             filter_by_set = set()
         if group_by_set is None:
-            group_by_set = []
+            group_by_set = set()
         if interval is None:
             interval = StatisticServiceAggregationInterval.MONTHLY
 
