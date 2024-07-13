@@ -33,3 +33,9 @@ class Timeframe:
 
     def format(self, format_str: str) -> tuple[str, str]:
         return self.start.format(format_str), self.end.format(format_str)
+
+    def __hash__(self):
+        """
+        Compute hash based on attributes (required to use @cache)
+        """
+        return hash((self.start, self.end))
