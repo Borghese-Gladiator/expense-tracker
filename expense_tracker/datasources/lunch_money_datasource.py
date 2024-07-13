@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from functools import cache
 
 import arrow
 import pandas as pd
@@ -33,6 +34,7 @@ class LunchMoneyDatasource(BaseDatasource):
             'Content-Type': 'application/json'
         }
 
+    @cache
     def get_transactions(self, timeframe: Timeframe) -> DataFrame[TransactionsSchema]:
         """
         Gets transactions for given timeframe
