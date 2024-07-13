@@ -57,6 +57,7 @@ class LunchMoneyDatasource(BaseDatasource):
             data = resp.json()
             txn_list: list[TransactionDict] = self._transform_raw_to_transactions_list(data['transactions'])
             df: DataFrame[TransactionsSchema] = pd.DataFrame(txn_list)
+            df.fillna("", inplace=True)
             return df
         except requests.HTTPError as e:
             # possibly check response for a message
@@ -77,7 +78,7 @@ class LunchMoneyDatasource(BaseDatasource):
                 'merchant': txn['payee'],
                 'category': txn['category_name'],
                 'description': txn['notes'],
-                'source': CreditSource.MANUAL if txn['source'] == 'manual' else CreditSource(txn['institution_name']),
+                'source': txn['category_name'], # CreditSource.MANUAL if txn['source'] == 'manual' else CreditSource(txn['institution_name']),
                 'tags': set([StatisticServiceFilter(tag["name"]) for tag in txn["tags"]]),
                 # TODO(07/04/2024) - add "location" when lunch money adds it to API
             })
