@@ -13,22 +13,28 @@ Client has actual usage of expense-tracker to generate stats
 
 - `cd client`
 - `poetry install`
-  - `poetry shell`
-    - `make run_streamlit`
-    - `make generate_png`
-    - `make generate_excel`
+- `poetry shell`
+  - `make run_streamlit`
+  - `make generate_png`
+  - `make generate_excel`
 
 ### expense-tracker package
 - `poetry install`
 - `python -m unittest discover`
 
 ## Notes
-- VSCode uses a JavaScript engine for its `find`
-- Set up `launch.json` in `.vscode` workspace to get Run and Debug
-  - Use "Run and Debug" to debug through zscripts and save output to file (this means I can iterate w/o rerunning the script from start which would send new `fetch` calls to the API. Python shell is great!)
-  - NOTE: requires a `.env` with values: `PYTHONPATH=.` (not sure after I added `Command Variable` extension)
 
 ### To Do
+- [ ] client - Streamlit
+- [ ] client - Excel
+  - [ ] spike: build in Google Sheets
+- [ ] client - PNG or PDF summary
+  - [ ] spike: Discord integration
+  - [ ] spike: Messenger integration
+---
+- [ ] update repo description
+- [ ] datasource - cache results in SQLite database (per datasource?)
+---
 - [ ] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
 - [ ] StatisticServiceFilter - implement selecting by other columns besides tags (eg: only get "grocery" + "restaurant" category transactions)
   ```
@@ -42,62 +48,25 @@ Client has actual usage of expense-tracker to generate stats
   ```
 - [ ] scale statistic_service performance
   - cache transactions via SQLite?
-
-### Done
-
-Flow of Data
-
-- [ ] Excel expense tracker
-  - pivot tables to summarize transactions
-  - bar graph w/ amount per category (reference Lunch Money)
-  - bar graph w/ highest spending per merchants
-  - line graph w/ cumulative spending
-- [ ] Lunch Money scripts
-  - create transactions for Fidelity + PayPal transactions from CSV
-  - get monthly transactions as CSV
-- [ ] Excel expense tracker generator (package)
-  - python script for PDF - load CSV, build graphs, create PDF
-  - python script for Excel - load CSV, build Pivot Tables, build graphs, create Excel
-- [ ] Integrations
-  - python script to screenshot PDF monthly summary and send to Messenger OR Discord
-  - python script to upload Excel into existing Excel "Timmy / Jon Rent" as new page
-- [ ] Streamlit
-	- show tables, graphs in local UI
-
-### Caveats
-- ERROR: pandas `groupby` removing columns when converting to list of dicts?
-  - Solution: `reset_index` creates new columns from levels of index so it will convert nicely
-- ERROR: VSCode fails to find unittest tests and tries to use pytest
-  - Solution: add following to settings.json - `"python.experiments.optOutFrom": ["pythonTestAdapter"]`
-- `poetry add python-dotenv`
-  - DO NOT install `dotenv` as that is a different package
-- ERROR: VSCode cannot find packages installed w/ Poetry
-  - Solution: Cmd+Shift+P +  `Python: Select Interpreter` - selected 3.10.11 env that poetry created
-- `poetry add numpy==1.26`
-  - NumPy had a major `2.0` release on 16 Jun 2024 (1 week ago) and that breaks Pandera's compatability with Pandas
-  - This command pins `numpy` version to the release before that major `2.0` release
-  - NOTE: Installing this required explicit python version too: `python = "<3.13,>=3.10"`
-
-### To Do
-Expense Tracker Service
-- [ ] client - Streamlit
-- [ ] client - Excel
-  - [ ] spike: build in Google Sheets
-- [ ] client - PNG or PDF summary
-  - [ ] spike: Discord integration
-  - [ ] spike: Messenger integration
 ---
-- [ ] update repo description
-- [ ] datasource - cache results in SQLite database (per datasource?)
+- [ ] expense_tracker - add library logging
+- [ ] client - add logging and `logging.getLogger('name.of.library').propagate = False`
 
 ### Done
+- [ ] client - Streamlit
+  - [X] fix: `Timeframe` not hashable => adding a cache requires hashing any parameter passed
+- [X] Lunch Money - upload Fidelity transactions => DONE, used tool inside Lunch Money instead of API (created account that uses manual transactions)
+  - test script with one transaction
+  - all transactions - add payee info (to get categories)
+  - Jun/July latest transactions
+- [X] Lunch Money - upload PayPal transactions => Don't need to, Fidelity was used to pay so all transactions are present there
 - [X] Lunch Money - export all transactions to CSV for data analysis
   - [X] zscript
   - [X] unit test for zscript => did not do, instead used Run and Debug and then wrote scratch file content until I outputted the correct values to CSV
-- [ ] Lunch Money - manual import Fidelity + PayPal transactions from CSV
+- [X] Lunch Money - manual import Fidelity + PayPal transactions from CSV => DONE, used Lunch Money tool instead of Python or Regex
   - [X] zscript
   - [X] unit tests for zscript => didn't do, just ran the POST
-  - [ ] PayPal transactions -> something isn't working when extracting PDF
+  - [X] PayPal transactions -> something isn't working when extracting PDF
   - [X] Fidelity transactions => regex and tossed into
 - Datasource
   - [X] BaseDatasource - get_transactions
@@ -117,6 +86,25 @@ Expense Tracker Service
     - build Google Sheets w/ pivot tables + graphs like "Timmy Expense Tracker"
 - investigate using cron for ETL pipeline
 
+### Learnings
+- VSCode uses a JavaScript engine for its `find`
+- Set up `launch.json` in `.vscode` workspace to get Run and Debug
+  - Use "Run and Debug" to debug through zscripts and save output to file (this means I can iterate w/o rerunning the script from start which would send new `fetch` calls to the API. Python shell is great!)
+  - NOTE: requires a `.env` with values: `PYTHONPATH=.` (not sure after I added `Command Variable` extension)
+1
+### Troubleshooting
+- ERROR: pandas `groupby` removing columns when converting to list of dicts?
+  - Solution: `reset_index` creates new columns from levels of index so it will convert nicely
+- ERROR: VSCode fails to find unittest tests and tries to use pytest
+  - Solution: add following to settings.json - `"python.experiments.optOutFrom": ["pythonTestAdapter"]`
+- `poetry add python-dotenv`
+  - DO NOT install `dotenv` as that is a different package
+- ERROR: VSCode cannot find packages installed w/ Poetry
+  - Solution: Cmd+Shift+P +  `Python: Select Interpreter` - selected 3.10.11 env that poetry created
+- `poetry add numpy==1.26`
+  - NumPy had a major `2.0` release on 16 Jun 2024 (1 week ago) and that breaks Pandera's compatability with Pandas
+  - This command pins `numpy` version to the release before that major `2.0` release
+  - NOTE: Installing this required explicit python version too: `python = "<3.13,>=3.10"`
 
 ### Bootstrap Steps
 expense_tracker package
