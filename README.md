@@ -1,18 +1,49 @@
 # Expense Tracker
-Ideally this will simplify sharing expense tracking from Lunch Money
-- Streamlit website
-- PNG to group chat
-- Excel with results
+Lunch Money is a tool I am using to track expenses. I want to export a summary report for my brother and I and create a briefer summary PNG to send in my family group chat with my parents.
 
-## Commands
+Functionality
+- Streamlit website to show last months transactions table AND last months summary graphs (category, merchant, location) AND year to date summary graphs (category, merchant, location)
+- Excel with same graphs
+- PNG with same graphs
+
+NOTE: currently, Lunch Money does not store transaction info
+
+## Usage
+Client has actual usage of expense-tracker to generate stats
+
+- `cd client`
 - `poetry install`
-- `poetry shell`
-- tests - `python -m unittest discover`
+  - `poetry shell`
+    - `make run_streamlit`
+    - `make generate_png`
+    - `make generate_excel`
+
+### expense-tracker package
+- `poetry install`
+- `python -m unittest discover`
 
 ## Notes
 - VSCode uses a JavaScript engine for its `find`
 - Set up `launch.json` in `.vscode` workspace to get Run and Debug
   - Use "Run and Debug" to debug through zscripts and save output to file (this means I can iterate w/o rerunning the script from start which would send new `fetch` calls to the API. Python shell is great!)
+  - NOTE: requires a `.env` with values: `PYTHONPATH=.` (not sure after I added `Command Variable` extension)
+
+### To Do
+- [ ] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
+- [ ] StatisticServiceFilter - implement selecting by other columns besides tags (eg: only get "grocery" + "restaurant" category transactions)
+  ```
+  source: Series[CreditSource] = pa.Field()
+  tags: Series[set[StatisticServiceFilter]] = pa.Field()
+  merchant: Series[str] = pa.Field()
+  description: Series[str] = pa.Field()
+  amount: Series[int] = pa.Field()
+  category: Series[str] = pa.Field()
+  location: Series[str] = pa.Field()
+  ```
+- [ ] scale statistic_service performance
+  - cache transactions via SQLite?
+
+### Done
 
 Flow of Data
 
@@ -122,6 +153,7 @@ poetry add git+https://github.com/Borghese-Gladiator/expense-tracker.git
 # generated example code via ChatGPT
 # streamlit run .\streamlit.py
 ```
+- client requires streamlit app be in parent and utils be a loaded module (unable to put in sibling directories)
 
 <details>
 <summary>Archive</summary>
@@ -155,6 +187,22 @@ Currently, it is only one Pandas script that aggregates CSVs though
   ```
 
 ## Notes
+
+### Powershell
+```powershell
+# Define the folder path and the string to prepend
+$FolderPath = "C:\Users\Timot\Documents\GitHub\expense-tracker\financial_transaction_history"
+$Prefix = "paypal_"
+
+# Get all files in the specified folder and its subfolders
+$Files = Get-ChildItem -Path $FolderPath -Recurse -File
+
+# Loop through each file and rename it by prepending the specified string
+foreach ($File in $Files) {
+    $NewName = $Prefix + $File.Name
+    Rename-Item -Path $File.FullName -NewName $NewName
+}
+```
 
 ### Bootstrap Steps
 - `poetry init`
