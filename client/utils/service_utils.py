@@ -89,8 +89,6 @@ def get_last_month_info(filter_by_set: set[StatisticServiceFilter] | None = None
     last_month_last_day = curr_month_first_day.shift(days=-1)
     start_date = last_month_first_day
     end_date = last_month_last_day
-    print(start_date, end_date)
-    print(type(start_date), type(end_date))
 
     # MAIN
     txn_df = service.get(
