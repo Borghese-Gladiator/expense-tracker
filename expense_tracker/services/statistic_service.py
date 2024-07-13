@@ -54,7 +54,7 @@ class StatisticService:
         
         # Filter by tags
         # NOTE: tags <= filter_by_set is a subset comparison checking if tags is a subset of filter_by_set
-        if len(filter_by_set) >= 0:
+        if len(filter_by_set) > 0:
             mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
             df = df[mask]
         
@@ -84,7 +84,7 @@ class StatisticService:
         
         # Filter by tags
         # NOTE: tags <= filter_by_set is a subset comparison checking if tags is a subset of filter_by_set
-        if len(filter_by_set) >= 0:
+        if len(filter_by_set) > 0:
             mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
             df = df[mask]
         

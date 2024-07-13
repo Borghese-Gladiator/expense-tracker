@@ -102,14 +102,6 @@ class TestStatisticService(unittest.TestCase):
         ])
 
     def test_get(self):
-        def _convert_df_input_to_output(df: pd.DataFrame) -> list[Transaction]:
-            return (
-                df
-                .assign(date=lambda df: df["date_str"].apply(lambda x: arrow.get(x, "YYYY-MM-DD")))
-                .drop("date_str", axis=1)
-                .to_dict(orient='records')
-            )
-            
         timeframe_start = arrow.get('2023-01-01')
         timeframe_end = arrow.get('2023-12-31')
 
