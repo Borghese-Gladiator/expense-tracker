@@ -1,8 +1,35 @@
+"""
+import sys
+import os
+
+# Print the current Python path
+print("Current PYTHONPATH:")
+for path in sys.path:
+    print(path)
+
+# Check if 'client' directory is in the Python path
+client_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+print(f"\nExpected client path: {client_path}")
+if client_path in sys.path:
+    print("Client directory is in PYTHONPATH")
+else:
+    print("Client directory is NOT in PYTHONPATH. Adding it.")
+    sys.path.insert(0, client_path)
+
+# Try to import the client module and catch any exceptions
+try:
+    from client.utils import get_brother_rent_info, get_total_rent_info
+    print("Imported client.utils successfully")
+except ModuleNotFoundError as e:
+    print(f"Error importing client.utils: {e}")
+"""
+# ========
+
+
 import streamlit as st
 import plotly.express as px
 
-from client.utils import get_brother_rent_info, get_total_rent_info
-
+from utils.service_utils import get_brother_rent_info, get_total_rent_info
 
 #==================
 #  CONSTANTS

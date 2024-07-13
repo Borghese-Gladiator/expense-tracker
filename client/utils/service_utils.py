@@ -23,7 +23,6 @@ How to Do YTD Expenditure
 spending = get(timeframe_start, timeframe_end)
 rent_applicable_spending = get(timeframe_start, timeframe_end, filter_by_set=StatisticServiceFilter.BROTHER_RENT)
 """
-from datetime import datetime
 import time
 import os
 
@@ -33,7 +32,7 @@ from dotenv import load_dotenv
 
 from expense_tracker.et_types import StatisticServiceAggregationInterval, StatisticServiceGroup
 from expense_tracker.datasources.lunch_money_datasource import LunchMoneyDatasource, LunchMoneyDatasourceSettings
-from expense_tracker.et_types.statistic_service_types import FilterCriteria, StatisticServiceFilter, Tag
+from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter
 from expense_tracker.services import StatisticService
 
 
@@ -84,12 +83,14 @@ def get_last_month_info(filter_by_set: set[StatisticServiceFilter] | None = None
     pd.DataFrame, # Last Month top merchants
 ]:
     # CONSTANTS
-    today = arrow.utcnow().date()
-    curr_month_first_day = arrow.get(today).floor('month')
-    last_month_first_day = curr_month_first_day.shift(months=-1).date()
-    last_month_last_day = curr_month_first_day.shift(days=-1).date()
+    today = arrow.now()
+    curr_month_first_day = today.floor('month')
+    last_month_first_day = curr_month_first_day.shift(months=-1)
+    last_month_last_day = curr_month_first_day.shift(days=-1)
     start_date = last_month_first_day
     end_date = last_month_last_day
+    print(start_date, end_date)
+    print(type(start_date), type(end_date))
 
     # MAIN
     txn_df = service.get(
@@ -122,8 +123,8 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
     pd.DataFrame, # YTD top merchants per month
 ]:
     # CONSTANTS
-    today = arrow.utcnow().date()
-    curr_year_first_day = arrow.get(today).floor('year').date()
+    today = arrow.now()
+    curr_year_first_day = today.floor('year')
     curr_day_floored = today.floor('day')
     start_date = curr_year_first_day
     end_date = curr_day_floored
