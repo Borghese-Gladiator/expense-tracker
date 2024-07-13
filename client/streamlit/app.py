@@ -1,31 +1,80 @@
-import arrow
 import streamlit as st
 import plotly.express as px
-import pandas as pd
 
-from client.utils import get_avg_monthly_ytd
+from client.utils import get_brother_rent_info, get_total_rent_info
 
 
 #==================
 #  CONSTANTS
 #==================
-this_month_str: str = arrow.now().format("YYYY/MM")
-category_groups_df, top_merchant_groups_df = get_avg_monthly_ytd()
-print(category_groups_df.head())
-print(top_merchant_groups_df.head())
-# print(top_location_groups.head())
+(
+    last_month_txn_df,
+    last_month_top_categories_df,
+    last_month_top_merchants_df,
+    ytd_totals_per_month_df,
+    ytd_groceries_vs_restaurants_per_month_df,
+    ytd_top_categories_per_month_df,
+    ytd_top_merchants_per_month,
+) = get_brother_rent_info()
+
+# (
+#     total_last_month_txn_df,
+#     total_last_month_top_categories_df,
+#     total_last_month_top_merchants_df,
+#     total_ytd_totals_per_month_df,
+#     total_ytd_groceries_vs_restaurants_per_month_df,
+#     total_ytd_top_categories_per_month_df,
+#     total_ytd_top_merchants_per_month,
+# ) = get_total_rent_info()
 
 #==================
 #  MAIN
 #==================
-st.title(f"Streamlit App for Expense Summary for {this_month_str}")
+st.title("Timmy Expense Tracker")
+st.caption("powered by Lunch Money (powered by Plaid)")
 
-# TRANSACTION table
+# **BROTHER Rent Applicable**
+# LAST MONTH
+st.subheader("LAST MONTH")
+
+# Transaction Table
 st.subheader("Transaction List")
+st.dataframe(last_month_txn_df)
+
+col1, col2 = st.columns(2)
+with col1:
+    # Top Categories
+    st.plotly_chart(px.bar(last_month_top_categories_df, x='Category', y='Amount', title="Top Categories"), use_container_width=True)
+with col2:
+    # Top Merchants
+    st.plotly_chart(px.bar(last_month_top_merchants_df, x='Merchant', y='Amount', title="Top Merchants"), use_container_width=True)
+
+# YTD AVERAGES per MONTH
+st.subheader("Year to Date Averages")
+
+col3, col4 = st.columns(2)
+with col3:
+    # Totals per Month
+    st.plotly_chart(px.bar(ytd_totals_per_month_df, x='Date', y='Amount', title="Totals per Month"), use_container_width=True)
+with col4:
+    # Groceries vs Restaurants per Month
+    st.plotly_chart(px.bar(ytd_groceries_vs_restaurants_per_month_df, x='Date', y=['Amount_Groceries', 'Amount_Restaurants'], title="Groceries vs Restaurants per Month"), use_container_width=True)
+
+col5, col6 = st.columns(2)
+with col5:
+    # Top Categories
+    st.plotly_chart(px.bar(ytd_top_categories_per_month_df, x='Date', y='Amount', title="Top Categories per Month"), use_container_width=True)
+with col6:
+    # Top Merchants
+    st.plotly_chart(px.bar(ytd_top_merchants_per_month, x='Date', y='Amount', title="Top Merchants per Month"), use_container_width=True)
+
+
+"""
+st.subheader("Rent Applicable - Transaction List")
 st.dataframe(df, use_container_width=True)
 
-# CATEGORY graphs
-st.subheader("Category Summary")
+# Category Graphs
+st.subheader("Rent Applicable - Category Summary")
 st.plotly_chart(
     px.bar(
         data_frame = category_groups_df,
@@ -47,7 +96,35 @@ st.plotly_chart(
     )
 )
 
-"""
+# YEAR TO DATE Rent Applicable
+# Transaction Table
+st.subheader("Transaction List")
+st.dataframe(df, use_container_width=True)
+
+# Category Graphs
+st.subheader("Category Summary")
+st.plotly_chart(
+    px.bar(
+        data_frame = category_groups_df,
+        x = "date",
+        y = ["category", "amount"],
+        orientation = "v",
+        barmode = 'group',
+        title = 'YTD Monthly Average (all) - Category'
+    )
+)
+st.plotly_chart(
+    px.bar(
+        data_frame = top_merchant_groups_df,
+        x = "date",
+        y = ["merchant", "amount"],
+        orientation = "v",
+        barmode = 'group',
+        title = 'YTD Monthly Average (all) - Category'
+    )
+)
+# -------------------------------------------
+
 ytd_monthly_panel_all_panel
 ytd_monthly_panel_rent_applicable_panel
 last_month_all_panel
