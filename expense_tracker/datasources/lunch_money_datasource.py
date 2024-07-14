@@ -18,7 +18,6 @@ class TxnStatus(Enum):
     CLEARED = "cleared"
     UNCLEARED = "uncleared"
 
-
 @dataclass
 class LunchMoneyDatasourceSettings(BaseDatasourceSettings):
     access_token: str
@@ -57,11 +56,8 @@ class LunchMoneyDatasource(BaseDatasource):
             resp.raise_for_status()
             data = resp.json()
             txn_list: list[TransactionDict] = self._transform_raw_to_transactions_list(data['transactions'])
-            print(txn_list[0:5])
             df: DataFrame[TransactionsSchema] = pd.DataFrame(txn_list)
-            print(df.iloc[0:5])
             df.fillna("", inplace=True)
-            print(df.iloc[0:5])
             return df
         except requests.HTTPError as e:
             # possibly check response for a message
@@ -82,7 +78,8 @@ class LunchMoneyDatasource(BaseDatasource):
                 'merchant': txn['payee'],
                 'category': txn['category_name'],
                 'description': txn['notes'],
-                'source': txn['category_name'],  # CreditSource.MANUAL if txn['source'] == 'manual' else CreditSource(txn['institution_name']),
-                'tags': set([StatisticServiceFilter(tag["name"]) for tag in txn['tags']]),
+                'source': txn['category_name'], # CreditSource.MANUAL if txn['source'] == 'manual' else CreditSource(txn['institution_name']),
+                'tags': set([StatisticServiceFilter(tag["name"]) for tag in txn["tags"]]),
+                # TODO(07/04/2024) - add "location" when lunch money adds it to API
             })
         return res
