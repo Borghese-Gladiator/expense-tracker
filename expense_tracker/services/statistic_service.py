@@ -59,7 +59,9 @@ class StatisticService:
             .mean()\
             .reset_index()
         
-        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(df)
+        sorted_df = df.sort_values(by=['amount'], ascending=[False])
+
+        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(sorted_df)
         return df.to_dict(orient='records')
 
     def get(
@@ -81,8 +83,10 @@ class StatisticService:
         if len(filter_by_set) > 0:
             mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
             df = df[mask]
+
+        sorted_df = df.sort_values(by=['amount'], ascending=[False])
         
-        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(df)
+        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(sorted_df)
         return df.to_dict(orient='records')
         
     def _format_transactions_df(self, df: DataFrame[TransactionsSchema]) -> DataFrame[FormattedTransactionsSchema]:
