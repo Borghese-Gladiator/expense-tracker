@@ -10,17 +10,7 @@ from expense_tracker.et_types import (
     StatisticServiceGroup, 
     StatisticServiceAggregationInterval
 )
-from expense_tracker.et_types.statistic_service_types import Timeframe
-
-class Transaction(TypedDict):
-    date: arrow.Arrow
-    merchant: str
-    description: str
-    amount: int
-    category: str
-    location: str
-    source: str
-    tags: list[StatisticServiceFilter]
+from expense_tracker.et_types.statistic_service_types import FormattedTransactionDict, FormattedTransactionsSchema, Timeframe
 
 class StatisticService:
     datasource: BaseDatasource
@@ -40,6 +30,9 @@ class StatisticService:
         group_by_set: set[StatisticServiceGroup] | None = None,
         interval: StatisticServiceAggregationInterval | None = None,
     ) -> list[dict]:
+        """
+        returns list of formatted dicts aggregated by interval
+        """
         if filter_by_set is None:
             filter_by_set = set()
         if group_by_set is None:
@@ -66,6 +59,7 @@ class StatisticService:
             .mean()\
             .reset_index()
         
+        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(df)
         return df.to_dict(orient='records')
 
     def get(
@@ -73,7 +67,7 @@ class StatisticService:
         timeframe_start: Arrow,
         timeframe_end: Arrow,
         filter_by_set: set[StatisticServiceFilter] | None = None,
-    ) -> list[Transaction]:
+    ) -> list[FormattedTransactionDict]:
         if filter_by_set is None:
             filter_by_set = set()
         
@@ -88,5 +82,12 @@ class StatisticService:
             mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
             df = df[mask]
         
+        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(df)
         return df.to_dict(orient='records')
         
+    def _format_transactions_df(self, df: DataFrame[TransactionsSchema]) -> DataFrame[FormattedTransactionsSchema]:
+        if 'date' in df:
+            df['date'] = df['date'].apply(lambda date: date.format('YYYY-MM-DD'))
+        if 'tags' in df:
+            df['tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag.value for tag in tags]))
+        return df

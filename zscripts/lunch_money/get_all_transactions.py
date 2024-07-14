@@ -12,7 +12,7 @@ import pandas as pd
 from arrow import Arrow
 from dotenv import load_dotenv
 
-from expense_tracker.datasources.lunch_money_datasource import LunchMoneyDatasource, TxnStatus
+from expense_tracker.datasources.lunch_money_datasource import LunchMoneyDatasource, LunchMoneyDatasourceSettings, TxnStatus
 from expense_tracker.et_types.statistic_service_types import Timeframe
 
 
@@ -53,7 +53,9 @@ timeframe_start = Arrow(2024, 1, 1)
 timeframe_end = arrow.now().floor('day')
 timeframe_list = generate_monthly_timeframes(timeframe_start, timeframe_end)
 df_list: list[pd.DataFrame] = []
-datasource = LunchMoneyDatasource()
+
+settings = LunchMoneyDatasourceSettings(LUNCH_MONEY_ACCESS_TOKEN)
+datasource = LunchMoneyDatasource(settings)
 
 for start_date, end_date in timeframe_list:
     df: pd.DataFrame = datasource.get_transactions(Timeframe(start_date, end_date))
@@ -64,7 +66,6 @@ df_merged = pd.concat(df_list, ignore_index=True, sort=False)
 
 df_merged = df_merged.fillna('')
 df_merged['tags'] = df_merged["tags"].apply(lambda x: None if x is None else [tag.value for tag in x])
-df_merged['source'] = df_merged["source"].apply(lambda x: None if x is None else x.value)
 df_merged['date'] = df_merged["date"].apply(lambda x: x.format(TIMEFRAME_FORMAT))
 
 output_filename = f'txn_list_{timeframe_start.format(TIMEFRAME_FORMAT)}_to_{timeframe_end.format(TIMEFRAME_FORMAT)}.csv'

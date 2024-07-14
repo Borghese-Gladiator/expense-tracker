@@ -55,7 +55,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
                 'merchant': 'Merchant A',
                 'category': 'Category A',
                 'description': 'Description A',
-                'source': 'Category A',
+                'source': 'manual',
                 'tags': {StatisticServiceFilter.BROTHER_RENT}
             },
             {
@@ -64,7 +64,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
                 'merchant': 'Merchant B',
                 'category': 'Category B',
                 'description': 'Description B',
-                'source': 'Category B',
+                'source': 'manual',
                 'tags': set()
             }
         ]

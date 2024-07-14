@@ -11,9 +11,7 @@ from expense_tracker.et_types import (
     StatisticServiceGroup, 
     StatisticServiceAggregationInterval
 )
-from expense_tracker.et_types.base_datasource_types import CreditSource
 from expense_tracker.services import StatisticService
-from expense_tracker.services.statistic_service import Transaction
 
 class TestStatisticService(unittest.TestCase):
     def setUp(self):
@@ -40,7 +38,7 @@ class TestStatisticService(unittest.TestCase):
             'amount': [100.0, 200.0, 300.0, 400.0, 250.0],
             'category': ['Restaurants', 'Groceries', 'Gas', 'Gas', 'Groceries'],
             "location": [fake.address(), fake.address(), fake.address(), fake.address(), fake.address()],
-            "source": [CreditSource.CAPITAL_ONE, CreditSource.CAPITAL_ONE, CreditSource.CAPITAL_ONE, CreditSource.FIDELITY, CreditSource.FIDELITY],
+            "source": ["capital_one", "capital_one", "capital_one", "fidelity", "fidelity"],
             "tags": [{StatisticServiceFilter.BROTHER_RENT}, None, None, None, {StatisticServiceFilter.BROTHER_RENT}]
         }
         self.df = pd.DataFrame(data)
@@ -110,14 +108,15 @@ class TestStatisticService(unittest.TestCase):
             arrow.get('2023-03-10'),
             arrow.get('2023-03-30'),
             None,
-        ), self.df.iloc[[2, 3, 4]].to_dict(orient='records'))
+        ), self.service._format_transactions_df(self.df.iloc[[2, 3, 4]]).to_dict(orient='records'))
         
         # Validate FILTER respected and non rent-applicable transactions are filtered out
         self.assertEqual(self.service.get(
             timeframe_start,
             timeframe_end,
             set([StatisticServiceFilter.BROTHER_RENT]),
-        ), self.df.iloc[[0, 4]].to_dict(orient='records'))
+        ), self.service._format_transactions_df(self.df.iloc[[0, 4]]).to_dict(orient='records'))
+        
         # Validate with empty list of transactions
         self.mock_datasource.get_transactions.return_value = pd.DataFrame({
             'date': [],

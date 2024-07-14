@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import TypedDict
 
+import pandera as pa
 from arrow import Arrow
+from pandera.typing import Series
 
 
 # TODO: dynamic tags based on datasource
@@ -39,3 +42,23 @@ class Timeframe:
         Compute hash based on attributes (required to use @cache)
         """
         return hash((self.start, self.end))
+
+class FormattedTransactionsSchema(pa.DataFrameModel):
+    amount: Series[int] = pa.Field()
+    category: Series[str] = pa.Field()
+    date: Series[str] = pa.Field()
+    description: Series[str] = pa.Field()
+    location: Series[str] = pa.Field()
+    merchant: Series[str] = pa.Field()
+    source: Series[str] = pa.Field()
+    tags: Series[set[str]] = pa.Field()
+
+class FormattedTransactionDict(TypedDict):
+    amount: int
+    category: str
+    date: str
+    description: str | None
+    location: str
+    merchant: str
+    source: str
+    tags: set[str] | None

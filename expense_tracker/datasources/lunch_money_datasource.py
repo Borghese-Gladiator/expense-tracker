@@ -10,7 +10,7 @@ from pandera.typing import DataFrame
 
 from expense_tracker.et_types import TransactionsSchema
 from expense_tracker.datasources.base_datasource import BaseDatasource, BaseDatasourceSettings
-from expense_tracker.et_types.base_datasource_types import CreditSource, TransactionDict
+from expense_tracker.et_types.base_datasource_types import TransactionDict
 from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter, Timeframe
 
 
@@ -78,7 +78,7 @@ class LunchMoneyDatasource(BaseDatasource):
                 'merchant': txn['payee'],
                 'category': txn['category_name'],
                 'description': txn['notes'],
-                'source': txn['category_name'], # CreditSource.MANUAL if txn['source'] == 'manual' else CreditSource(txn['institution_name']),
+                'source': "manual" if txn['source'] == 'manual' else txn["asset_display_name"],
                 'tags': set([StatisticServiceFilter(tag["name"]) for tag in txn["tags"]]),
                 # TODO(07/04/2024) - add "location" when lunch money adds it to API
             })
