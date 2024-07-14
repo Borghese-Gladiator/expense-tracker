@@ -141,7 +141,7 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         end_date,
         group_by_set={StatisticServiceGroup.CATEGORY},
         filter_by_set=filter_by_set,
-        interval=StatisticServiceAggregationInterval.MONTHLY
+        interval=StatisticServiceAggregationInterval.YEARLY
     )
     groceries_vs_restaurants_per_month_df = categories_df # TODO: implement here OR update service to be able to select by other columns besides "tags"
     top_categories_df = categories_df[:5]
@@ -151,7 +151,7 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         end_date,
         group_by_set={StatisticServiceGroup.MERCHANT},
         filter_by_set=filter_by_set,
-        interval=StatisticServiceAggregationInterval.MONTHLY
+        interval=StatisticServiceAggregationInterval.YEARLY
     )[:5]
     return totals_per_month_df, groceries_vs_restaurants_per_month_df, top_categories_df, top_merchants_df
 
