@@ -25,20 +25,11 @@ Client has actual usage of expense-tracker to generate stats
 ## Notes
 
 ### To Do
-- [ ] client - Streamlit
-- [ ] client - Excel
-  - [ ] spike: build in Google Sheets
-- [ ] client - PNG or PDF summary
-  - [ ] spike: Discord integration
-  - [ ] spike: Messenger integration
----
-- [ ] update repo description
-- [ ] datasource - cache results in SQLite database (per datasource?)
----
+- [ ] lunch_money_datasource - filter out positive values OR ones with tag "Payment"
 - [ ] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
 - [ ] StatisticServiceFilter - implement selecting by other columns besides tags (eg: only get "grocery" + "restaurant" category transactions)
   ```
-  source: Series[CreditSource] = pa.Field()
+  source: Series[str] = pa.Field()
   tags: Series[set[StatisticServiceFilter]] = pa.Field()
   merchant: Series[str] = pa.Field()
   description: Series[str] = pa.Field()
@@ -46,9 +37,19 @@ Client has actual usage of expense-tracker to generate stats
   category: Series[str] = pa.Field()
   location: Series[str] = pa.Field()
   ```
-- [ ] scale statistic_service performance
-  - cache transactions via SQLite?
+- [ ] expense_tracker - `StatisticServiceSort` asc/desc on a column
+- [ ] client - implement `"Groceries vs Restaurants per Month"`
+- [ ] client - green checkmark (model to show if passed rent `1500`)
 ---
+- [ ] client - Streamlit
+- [ ] client - Excel
+  - [ ] spike: build in Google Sheets
+- [ ] client - PNG or PDF summary
+  - [ ] spike: Discord integration
+  - [ ] spike: Messenger integration
+- [ ] update repo description
+---
+- [ ] datasource - cache results in SQLite database (per datasource?)
 - [ ] expense_tracker - add library logging
 - [ ] client - add logging and `logging.getLogger('name.of.library').propagate = False`
 
@@ -91,7 +92,7 @@ Client has actual usage of expense-tracker to generate stats
 - Set up `launch.json` in `.vscode` workspace to get Run and Debug
   - Use "Run and Debug" to debug through zscripts and save output to file (this means I can iterate w/o rerunning the script from start which would send new `fetch` calls to the API. Python shell is great!)
   - NOTE: requires a `.env` with values: `PYTHONPATH=.` (not sure after I added `Command Variable` extension)
-1
+
 ### Troubleshooting
 - ERROR: pandas `groupby` removing columns when converting to list of dicts?
   - Solution: `reset_index` creates new columns from levels of index so it will convert nicely
