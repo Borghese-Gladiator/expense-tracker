@@ -329,7 +329,7 @@ requests = "^2.32.3"
 type = "git"
 url = "https://github.com/Borghese-Gladiator/expense-tracker.git"
 reference = "HEAD"
-resolved_reference = "cb66dfeea55af348d258622a9206a696d8589346"
+resolved_reference = "982aab62328f3eac810c32652da442691a1b63bf"
 
 [[package]]
 name = "fonttools"
