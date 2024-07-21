@@ -5,6 +5,7 @@ import arrow
 import pandas as pd
 import requests
 from expense_tracker.datasources.lunch_money_datasource import LunchMoneyDatasource, LunchMoneyDatasourceSettings
+from expense_tracker.et_types.lunch_money_datasource_types import LunchMoneyFilterColumn, LunchMoneyTag
 from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter, Timeframe
 
 
@@ -54,7 +55,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
                 'category': 'Category A',
                 'description': 'Description A',
                 'source': 'manual',
-                'tags': {StatisticServiceFilter.BROTHER_RENT}
+                'tags': {LunchMoneyTag.BROTHER_RENT}
             },
             {
                 'date': arrow.get('2023-01-02'),

@@ -49,6 +49,8 @@ Client has actual usage of expense-tracker to generate stats
 - [ ] datasource - cache results in SQLite database (per datasource?)
 - [ ] expense_tracker - add library logging
 - [ ] client - add logging and `logging.getLogger('name.of.library').propagate = False`
+- [ ] StatisticService - improve performance of tags by doing subset comparison (`"tags <= filter_by_set" is a subset comparison checking if tags is a subset of filter_by_set`)
+  - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
 
 ### Done
 - [X] lunch_money_datasource - filter out positive values OR ones with tag "Payment"

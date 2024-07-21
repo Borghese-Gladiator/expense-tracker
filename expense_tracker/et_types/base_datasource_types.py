@@ -27,4 +27,3 @@ class TransactionDict(TypedDict):
     merchant: str
     source: str
     tags: set[StatisticServiceFilter] | None
-

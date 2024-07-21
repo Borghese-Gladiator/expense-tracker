@@ -10,7 +10,8 @@ from expense_tracker.et_types import (
     StatisticServiceGroup, 
     StatisticServiceAggregationInterval
 )
-from expense_tracker.et_types.statistic_service_types import FormattedTransactionDict, FormattedTransactionsSchema, Timeframe
+from expense_tracker.et_types.lunch_money_datasource_types import LunchMoneyFilterColumn, LunchMoneySortColumn
+from expense_tracker.et_types.statistic_service_types import FormattedTransactionDict, FormattedTransactionsSchema, StatisticServiceSort, Timeframe
 
 class StatisticService:
     datasource: BaseDatasource
@@ -28,6 +29,7 @@ class StatisticService:
         timeframe_end: Arrow,
         filter_by_set: set[StatisticServiceFilter] | None = None,
         group_by_set: set[StatisticServiceGroup] | None = None,
+        sort_by_set: set[StatisticServiceSort] | None = None,
         interval: StatisticServiceAggregationInterval | None = None,
     ) -> list[dict]:
         """
@@ -74,6 +76,12 @@ class StatisticService:
             filter_by_set = set()
         if group_by_set is None:
             group_by_set = set()
+        if sort_by_set is None:
+            sort_by_set = {StatisticServiceSort(column=LunchMoneySortColumn.AMOUNT, ascending=False)}
+            # {
+            #     StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True),
+            #     StatisticServiceSort(column=LunchMoneySortColumn.AMOUNT, ascending=False)
+            # }
         if interval is None:
             interval = StatisticServiceAggregationInterval.MONTHLY
 
@@ -82,21 +90,19 @@ class StatisticService:
         # Filter by time
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
         
-        # Filter by tags
-        # NOTE: tags <= filter_by_set is a subset comparison checking if tags is a subset of filter_by_set
-        if len(filter_by_set) > 0:
-            mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
-            df = df[mask]
+        # Filter by filter criteria (eg: tags)
+        df = self._filter_transactions_df(df, filter_by_set)
         
         # Aggregate by interval (eg: monthly, yearly) and group_by (eg: category, merchant)
         # NOTE: grouping by columns means ALL other columns will be lost (besides "date" which is overrided to group_by value and group_by_list)
         df = df\
             .assign(date=lambda df: df["date"].apply(lambda x: x.format(self.interval_format_mapping[interval])))\
-            .groupby(['date'] + [group_by.value for group_by in group_by_set])[['amount']]\
+            .groupby(['date'] + [group_by.column.value for group_by in group_by_set])[['amount']]\
             .mean()\
             .reset_index()
         
-        sorted_df = df.sort_values(by=['amount'], ascending=[False])
+        # Sort by passed sort columns
+        sorted_df = self._sort_transactions_df(df, sort_by_set)
 
         df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(sorted_df)
         return df.to_dict(orient='records')
@@ -106,6 +112,7 @@ class StatisticService:
         timeframe_start: Arrow,
         timeframe_end: Arrow,
         filter_by_set: set[StatisticServiceFilter] | None = None,
+        sort_by_set: set[StatisticServiceSort] | None = None,
     ) -> list[FormattedTransactionDict]:
         """
         Get transactions within a specified timeframe, optionally filtered by certain criteria.
@@ -125,23 +132,41 @@ class StatisticService:
         """
         if filter_by_set is None:
             filter_by_set = set()
+        if sort_by_set is None:
+            sort_by_set = set() # {StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True)}
         
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
 
         # Filter by time
         df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
         
-        # Filter by tags
-        # NOTE: tags <= filter_by_set is a subset comparison checking if tags is a subset of filter_by_set
-        if len(filter_by_set) > 0:
-            mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set)
-            df = df[mask]
+        # Filter by filter criteria (eg: tags)
+        df = self._filter_transactions_df(df, filter_by_set)
 
-        sorted_df = df.sort_values(by=['amount'], ascending=[False])
+        # Sort by passed sort columns
+        df = self._sort_transactions_df(df, sort_by_set)
         
-        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(sorted_df)
+        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(df)
         return df.to_dict(orient='records')
-        
+
+    def _filter_transactions_df(self, df: DataFrame[TransactionsSchema], filter_by_set: set[StatisticServiceFilter]) -> DataFrame[TransactionsSchema]:
+        for filter_by in filter_by_set:
+            if filter_by.column == LunchMoneyFilterColumn.TAGS:
+                if filter_by.exclude:
+                    mask = df['tags'].apply(lambda tags: False if tags is None else filter_by.column_value not in tags)
+                else:
+                    mask = df['tags'].apply(lambda tags: False if tags is None else filter_by.column_value in tags)
+            else:
+                if filter_by.exclude:
+                    mask = df[filter_by.column.value] != filter_by.column_value
+                else:
+                    mask = df[filter_by.column.value] == filter_by.column_value
+            df = df[mask]
+        return df
+
+    def _sort_transactions_df(self, df: DataFrame[TransactionsSchema], sort_by_set: set[StatisticServiceSort]) -> DataFrame[TransactionsSchema]:
+        return df.sort_values(by=[sort_by.column.value for sort_by in sort_by_set], ascending=[sort_by.ascending for sort_by in sort_by_set])
+
     def _format_transactions_df(self, df: DataFrame[TransactionsSchema]) -> DataFrame[FormattedTransactionsSchema]:
         """
         Format the transactions DataFrame to have human-readable str values for tables.
