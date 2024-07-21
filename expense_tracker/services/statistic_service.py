@@ -1,6 +1,7 @@
 from typing import TypedDict
 import arrow
 from arrow import Arrow
+import pandas as pd
 from pandera.typing import DataFrame
 
 from expense_tracker.datasources import BaseDatasource
@@ -77,34 +78,35 @@ class StatisticService:
         if group_by_set is None:
             group_by_set = set()
         if sort_by_set is None:
-            sort_by_set = {StatisticServiceSort(column=LunchMoneySortColumn.AMOUNT, ascending=False)}
-            # {
-            #     StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True),
-            #     StatisticServiceSort(column=LunchMoneySortColumn.AMOUNT, ascending=False)
-            # }
+            sort_by_set = {
+                StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True),
+                StatisticServiceSort(column=LunchMoneySortColumn.AMOUNT, ascending=False)
+            }
         if interval is None:
             interval = StatisticServiceAggregationInterval.MONTHLY
 
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
         
         # Filter by time
-        df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
+        df = df[(df['date_arrow'] >= timeframe_start) & (df['date_arrow'] <= timeframe_end)]
+        # df['date'] = df['date'].apply(lambda date: date.format('YYYY-MM-DD'))  # remove Arrow to enable pandas filtering, sorting
         
         # Filter by filter criteria (eg: tags)
         df = self._filter_transactions_df(df, filter_by_set)
         
+        
+        # Sort by passed sort columns
+        df = self._sort_transactions_df(df, sort_by_set)
+        
         # Aggregate by interval (eg: monthly, yearly) and group_by (eg: category, merchant)
         # NOTE: grouping by columns means ALL other columns will be lost (besides "date" which is overrided to group_by value and group_by_list)
         df = df\
-            .assign(date=lambda df: df["date"].apply(lambda x: x.format(self.interval_format_mapping[interval])))\
+            .assign(date=lambda df: df["date_arrow"].apply(lambda x: x.format(self.interval_format_mapping[interval])))\
             .groupby(['date'] + [group_by.column.value for group_by in group_by_set])[['amount']]\
             .mean()\
             .reset_index()
-        
-        # Sort by passed sort columns
-        sorted_df = self._sort_transactions_df(df, sort_by_set)
 
-        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(sorted_df)
+        df: DataFrame[FormattedTransactionsSchema] = self._format_transactions_df(df)
         return df.to_dict(orient='records')
 
     def get(
@@ -133,12 +135,12 @@ class StatisticService:
         if filter_by_set is None:
             filter_by_set = set()
         if sort_by_set is None:
-            sort_by_set = set() # {StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True)}
+            sort_by_set = {StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True)}
         
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
 
         # Filter by time
-        df = df[(df['date'] >= timeframe_start) & (df['date'] <= timeframe_end)]
+        df = df[(df['date_arrow'] >= timeframe_start) & (df['date_arrow'] <= timeframe_end)]
         
         # Filter by filter criteria (eg: tags)
         df = self._filter_transactions_df(df, filter_by_set)
@@ -150,22 +152,42 @@ class StatisticService:
         return df.to_dict(orient='records')
 
     def _filter_transactions_df(self, df: DataFrame[TransactionsSchema], filter_by_set: set[StatisticServiceFilter]) -> DataFrame[TransactionsSchema]:
+        """
+        Filter the transactions DataFrame by building combined mask using provided filter criteria
+
+        Args:
+            df (DataFrame[TransactionsSchema]): The transactions DataFrame to filter.
+            filter_by_set (set[StatisticServiceFilter]): The set of filter criteria to apply.
+        
+        Returns:
+            DataFrame[TransactionsSchema]: The filtered transactions DataFrame.
+        """
+        if not filter_by_set:
+            return df
+
+        # start all values with mask of True
+        combined_mask = pd.Series([True] * len(df))
         for filter_by in filter_by_set:
             if filter_by.column == LunchMoneyFilterColumn.TAGS:
-                if filter_by.exclude:
-                    mask = df['tags'].apply(lambda tags: False if tags is None else filter_by.column_value not in tags)
-                else:
-                    mask = df['tags'].apply(lambda tags: False if tags is None else filter_by.column_value in tags)
+                mask = df['tags'].apply(lambda tags: filter_by.column_value in tags if tags is not None else False)
             else:
-                if filter_by.exclude:
-                    mask = df[filter_by.column.value] != filter_by.column_value
-                else:
-                    mask = df[filter_by.column.value] == filter_by.column_value
-            df = df[mask]
-        return df
+                mask = df[filter_by.column.value] == filter_by.column_value
+            if filter_by.exclude:
+                mask = ~mask
+            # combine the mask with the combined mask using logical AND
+            combined_mask &= mask
+        # apply combined mask
+        return df[combined_mask]
 
     def _sort_transactions_df(self, df: DataFrame[TransactionsSchema], sort_by_set: set[StatisticServiceSort]) -> DataFrame[TransactionsSchema]:
-        return df.sort_values(by=[sort_by.column.value for sort_by in sort_by_set], ascending=[sort_by.ascending for sort_by in sort_by_set])
+        # temporary 'date' column to enable sorting
+        df['date'] = df['date_arrow'].apply(lambda date: date.format('YYYY-MM-DD'))
+        # apply sort
+        df = df.sort_values(by=[sort_by.column.value for sort_by in sort_by_set], ascending=[sort_by.ascending for sort_by in sort_by_set])
+        # remove temporary 'date' column
+        df = df.drop('date', axis=1)
+        
+        return df
 
     def _format_transactions_df(self, df: DataFrame[TransactionsSchema]) -> DataFrame[FormattedTransactionsSchema]:
         """
@@ -181,8 +203,9 @@ class StatisticService:
         Returns:
             DataFrame[FormattedTransactionsSchema]: The formatted transactions DataFrame with human-readable values.
         """
-        if 'date' in df:
-            df['date'] = df['date'].apply(lambda date: date.format('YYYY-MM-DD'))
+        if 'date_arrow' in df:
+            df['date'] = df['date_arrow'].apply(lambda date_arrow: date_arrow.format('YYYY-MM-DD'))  # remove Arrow to enable pandas filtering, sorting
+            df = df.drop('date_arrow', axis=1)
         if 'tags' in df:
             df['tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag.value for tag in tags]))
         return df

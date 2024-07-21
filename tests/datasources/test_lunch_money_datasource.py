@@ -49,7 +49,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
         mock_get.return_value = mock_response
         expected_data = [
             {
-                'date': arrow.get('2023-01-01'),
+                'date_arrow': arrow.get('2023-01-01'),
                 'amount': 100.0,
                 'merchant': 'Merchant A',
                 'category': 'Category A',
@@ -58,7 +58,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
                 'tags': {LunchMoneyTag.BROTHER_RENT}
             },
             {
-                'date': arrow.get('2023-01-02'),
+                'date_arrow': arrow.get('2023-01-02'),
                 'amount': 200.0,
                 'merchant': 'Merchant B',
                 'category': 'Category B',

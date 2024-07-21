@@ -88,7 +88,7 @@ class LunchMoneyDatasource(BaseDatasource):
             if txn['category_name'] == "Payment, Transfer":
                 continue
             res.append({
-                'date': arrow.get(txn['date'], self.timeframe_format),
+                'date_arrow': arrow.get(txn['date'], self.timeframe_format),
                 'amount': float(txn['amount']),
                 'merchant': txn['payee'],
                 'category': txn['category_name'],

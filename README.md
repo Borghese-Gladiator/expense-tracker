@@ -23,18 +23,6 @@ Client has actual usage of expense-tracker to generate stats
 ## Notes
 
 ### To Do
-- [ ] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
-- [ ] StatisticServiceFilter - implement selecting by other columns besides tags (eg: only get "grocery" + "restaurant" category transactions)
-  ```
-  source: Series[str] = pa.Field()
-  tags: Series[set[StatisticServiceFilter]] = pa.Field()
-  merchant: Series[str] = pa.Field()
-  description: Series[str] = pa.Field()
-  amount: Series[int] = pa.Field()
-  category: Series[str] = pa.Field()
-  location: Series[str] = pa.Field()
-  ```
-- [ ] StatisticServiceSort asc/desc on a column
 - [ ] streamlit - implement `"Groceries vs Restaurants per Month"`
 - [ ] streamlit - green checkmark (model to show if passed rent `1500`)
 ---
@@ -53,6 +41,19 @@ Client has actual usage of expense-tracker to generate stats
   - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
 
 ### Done
+- [X] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
+- [X] StatisticServiceFilter - implement selecting by other columns besides tags (eg: only get "grocery" + "restaurant" category transactions)
+  ```
+  source: Series[str] = pa.Field()
+  tags: Series[set[StatisticServiceFilter]] = pa.Field()
+  merchant: Series[str] = pa.Field()
+  description: Series[str] = pa.Field()
+  amount: Series[int] = pa.Field()
+  category: Series[str] = pa.Field()
+  location: Series[str] = pa.Field()
+  ```
+- [X] StatisticServiceSort asc/desc on a column
+---
 - [X] lunch_money_datasource - filter out positive values OR ones with tag "Payment"
 - [ ] client - Streamlit
   - [X] fix: `Timeframe` not hashable => adding a cache requires hashing any parameter passed

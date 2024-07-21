@@ -17,7 +17,7 @@ class LunchMoneyGroupColumn(Enum):
 
 class LunchMoneySortColumn(Enum):
     AMOUNT = "amount"
-    # DATE = "date"  # date are arrow types and need to be sorted separately OR at the end with string interpretation
+    DATE = "date"  # date are arrow types and need to be sorted separately OR at the end with string interpretation
     CATEGORY = "category"
     # LOCATION = "location"
     MERCHANT = "merchant"

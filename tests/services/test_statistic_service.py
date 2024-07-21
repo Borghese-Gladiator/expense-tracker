@@ -22,7 +22,7 @@ class TestStatisticService(unittest.TestCase):
 
         fake = Faker()
         data = {
-            'date': [
+            'date_arrow': [
                 arrow.get('2023-01-01', "YYYY-MM-DD"),
                 arrow.get('2023-02-15', "YYYY-MM-DD"),
                 arrow.get('2023-03-10', "YYYY-MM-DD"),
@@ -72,8 +72,8 @@ class TestStatisticService(unittest.TestCase):
             None,
             monthly_interval
         ), [
-            {'date': '2023-03', 'amount': 250.0},
             {'date': '2023-01', 'amount': 100.0},
+            {'date': '2023-03', 'amount': 250.0},
         ])
 
         # Validate CATEGORY groups as expected and amounts are grouped by interval + category
@@ -85,10 +85,10 @@ class TestStatisticService(unittest.TestCase):
             None,
             monthly_interval
         ), [
+            {'date': '2023-01', 'category': 'Restaurants', 'amount': 100.0},
+            {'date': '2023-02', 'category': 'Groceries', 'amount': 200.0},
             {'date': '2023-03', 'category': 'Gas', 'amount': 350.0},
             {'date': '2023-03', 'category': 'Groceries', 'amount': 250.0},
-            {'date': '2023-02', 'category': 'Groceries', 'amount': 200.0},
-            {'date': '2023-01', 'category': 'Restaurants', 'amount': 100.0},
         ])
         
         # Validate YEARLY aggregation interval
@@ -141,7 +141,7 @@ class TestStatisticService(unittest.TestCase):
         
         # Validate with empty list of transactions
         self.mock_datasource.get_transactions.return_value = pd.DataFrame({
-            'date': [],
+            'date_arrow': [],
             "merchant": [],
             "description": [],
             'amount': [],
