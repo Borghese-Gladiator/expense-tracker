@@ -1,12 +1,10 @@
 # Expense Tracker
-Lunch Money is a tool I am using to track expenses. I want to export a summary report for my brother and I and create a briefer summary PNG to send in my family group chat with my parents.
+Lunch Money is a tool I'm using to track expenses. I want to export a summary report for my brother (and I) and create a briefer summary PNG to send in my family group chat with my parents.
 
 Functionality
 - Streamlit website to show last months transactions table AND last months summary graphs (category, merchant, location) AND year to date summary graphs (category, merchant, location)
 - Excel with same graphs
 - PNG with same graphs
-
-NOTE: currently, Lunch Money does not store transaction info
 
 ## Usage
 Client has actual usage of expense-tracker to generate stats
@@ -25,7 +23,6 @@ Client has actual usage of expense-tracker to generate stats
 ## Notes
 
 ### To Do
-- [ ] lunch_money_datasource - filter out positive values OR ones with tag "Payment"
 - [ ] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
 - [ ] StatisticServiceFilter - implement selecting by other columns besides tags (eg: only get "grocery" + "restaurant" category transactions)
   ```
@@ -37,9 +34,9 @@ Client has actual usage of expense-tracker to generate stats
   category: Series[str] = pa.Field()
   location: Series[str] = pa.Field()
   ```
-- [ ] expense_tracker - `StatisticServiceSort` asc/desc on a column
-- [ ] client - implement `"Groceries vs Restaurants per Month"`
-- [ ] client - green checkmark (model to show if passed rent `1500`)
+- [ ] StatisticServiceSort asc/desc on a column
+- [ ] streamlit - implement `"Groceries vs Restaurants per Month"`
+- [ ] streamlit - green checkmark (model to show if passed rent `1500`)
 ---
 - [ ] client - Streamlit
 - [ ] client - Excel
@@ -54,6 +51,7 @@ Client has actual usage of expense-tracker to generate stats
 - [ ] client - add logging and `logging.getLogger('name.of.library').propagate = False`
 
 ### Done
+- [X] lunch_money_datasource - filter out positive values OR ones with tag "Payment"
 - [ ] client - Streamlit
   - [X] fix: `Timeframe` not hashable => adding a cache requires hashing any parameter passed
 - [X] Lunch Money - upload Fidelity transactions => DONE, used tool inside Lunch Money instead of API (created account that uses manual transactions)
