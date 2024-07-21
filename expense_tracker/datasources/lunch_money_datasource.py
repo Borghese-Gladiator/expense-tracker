@@ -37,7 +37,13 @@ class LunchMoneyDatasource(BaseDatasource):
     @cache
     def get_transactions(self, timeframe: Timeframe) -> DataFrame[TransactionsSchema]:
         """
-        Gets transactions for given timeframe
+        Fetches transactions from Lunch Money API for a given timeframe
+
+        Args:
+            timeframe (Timeframe): Timeframe object with start and end dates
+        
+        Returns:
+            DataFrame[TransactionsSchema]: DataFrame of transactions
         """
         # CONSTANTS
         endpoint = f'{self.base_url}/v1/transactions'
@@ -68,10 +74,19 @@ class LunchMoneyDatasource(BaseDatasource):
 
     def _transform_raw_to_transactions_list(self, txn_list: list[dict]) -> list[TransactionDict]:
         """
-        Transforms raw transactions list from Lunch Money into expected TransactionDict list
+        Private method to extract relevant info from raw transactions list from Lunch Money API and build a list of TransactionDict
+
+        Args:
+            txn_list (list[dict]): Raw transactions list from Lunch Money API
+        
+        Returns:
+            list[TransactionDict]: List of transactions
         """
         res: list[dict] = []
         for txn in txn_list:
+            # skip credit card Payments from graphs
+            if txn['category_name'] == "Payment, Transfer":
+                continue
             res.append({
                 'date': arrow.get(txn['date'], self.timeframe_format),
                 'amount': float(txn['amount']),
@@ -80,6 +95,6 @@ class LunchMoneyDatasource(BaseDatasource):
                 'description': txn['notes'],
                 'source': "manual" if txn['source'] == 'manual' else txn["asset_display_name"],
                 'tags': set([StatisticServiceFilter(tag["name"]) for tag in txn["tags"]]),
-                # TODO(07/04/2024) - add "location" when lunch money adds it to API
+                # TODO(07/04/2024) - add "location" when lunch money adds it to API => Lunch Money will not add location info since Plaid's location value is mostly empty
             })
         return res

@@ -10,8 +10,7 @@ from expense_tracker.et_types.statistic_service_types import StatisticServiceFil
 
 class TestLunchMoneyDatasource(unittest.TestCase):
     @patch('requests.get')
-    def test_get_transactions_success(self, mock_get):
-        # Mock response data
+    def test_get_transactions(self, mock_get):
         mock_response = MagicMock()
         mock_response.json.return_value = {
             'transactions': [
@@ -32,22 +31,21 @@ class TestLunchMoneyDatasource(unittest.TestCase):
                     'notes': 'Description B',
                     'source': 'manual',
                     'tags': []
+                },
+                # get_transactions should filter this Credit Payment transaction
+                {
+                    'date': '2023-01-03',
+                    'amount': '300.0',
+                    'payee': 'Merchant C',
+                    'category_name': 'Payment, Transfer',
+                    'notes': 'Description C',
+                    'source': 'manual',
+                    'tags': []
                 }
             ]
         }
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
-
-        # Create instance of datasource
-        settings = LunchMoneyDatasourceSettings(access_token="dummy_token")
-        datasource = LunchMoneyDatasource(settings)
-
-        timeframe = Timeframe(arrow.get("2023-01-01"), arrow.get("2023-01-31"))
-
-        # Call method
-        result = datasource.get_transactions(timeframe)
-
-        # Define expected result
         expected_data = [
             {
                 'date': arrow.get('2023-01-01'),
@@ -70,7 +68,15 @@ class TestLunchMoneyDatasource(unittest.TestCase):
         ]
         expected_df = pd.DataFrame(expected_data)
 
-        # Assert
+        # constants
+        settings = LunchMoneyDatasourceSettings(access_token="dummy_token")
+        datasource = LunchMoneyDatasource(settings)
+        timeframe = Timeframe(arrow.get("2023-01-01"), arrow.get("2023-01-31"))
+
+        # ACT
+        result = datasource.get_transactions(timeframe)
+
+        # ASSERT
         pd.testing.assert_frame_equal(result, expected_df)
 
     @patch('requests.get')
