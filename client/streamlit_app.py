@@ -100,7 +100,7 @@ with col3:
     st.plotly_chart(px.bar(ytd_totals_per_month_df, x='date', y='amount', title="Totals per Month"), use_container_width=True)
 with col4:
     st.subheader("Groceries vs Restaurants per Month")
-    # st.plotly_chart(px.bar(ytd_groceries_vs_restaurants_per_month_df, x='date', y=['Amount_Groceries', 'Amount_Restaurants'], title="Groceries vs Restaurants per Month"), use_container_width=True)
+    st.plotly_chart(px.bar(ytd_groceries_vs_restaurants_per_month_df, x='date', y=['Amount_Groceries', 'Amount_Restaurants'], title="Groceries vs Restaurants per Month"), use_container_width=True)
 
 col5, col6 = st.columns(2)
 with col5:
