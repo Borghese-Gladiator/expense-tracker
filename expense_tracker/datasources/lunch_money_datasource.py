@@ -62,6 +62,8 @@ class LunchMoneyDatasource(BaseDatasource):
             resp.raise_for_status()
             data = resp.json()
             txn_list: list[TransactionDict] = self._transform_raw_to_transactions_list(data['transactions'])
+            # Reference: below code enables more control over column order
+            ## df: DataFrame[TransactionsSchema] = pd.DataFrame.from_records(txn_list, columns=['date_arrow', 'amount', 'merchant', 'category', 'description', 'source', 'tags'])
             df: DataFrame[TransactionsSchema] = pd.DataFrame(txn_list)
             df.fillna("", inplace=True)
             return df
