@@ -4,6 +4,10 @@ from enum import Enum
 class LunchMoneyTag(Enum):
     BROTHER_RENT = "Brother Rent"
 
+class LunchMoneyCategory(Enum):
+    GROCERIES = "Groceries"
+    RESTAURANTS = "Restaurants"
+
 class LunchMoneyFilterColumn(Enum):
     CATEGORY = "category"
     # LOCATION = "location"
