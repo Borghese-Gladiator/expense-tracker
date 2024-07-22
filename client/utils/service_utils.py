@@ -32,7 +32,7 @@ from dotenv import load_dotenv
 
 from expense_tracker.et_types import StatisticServiceAggregationInterval, StatisticServiceGroup
 from expense_tracker.datasources.lunch_money_datasource import LunchMoneyDatasource, LunchMoneyDatasourceSettings
-from expense_tracker.et_types.lunch_money_datasource_types import LunchMoneyFilterColumn, LunchMoneyTag
+from expense_tracker.et_types.lunch_money_datasource_types import LunchMoneyCategory, LunchMoneyFilterColumn, LunchMoneyGroupColumn, LunchMoneyTag
 from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter
 from expense_tracker.services import StatisticService
 
@@ -46,6 +46,7 @@ settings = LunchMoneyDatasourceSettings(access_token=LUNCH_MONEY_ACCESS_TOKEN)
 
 datasource = LunchMoneyDatasource(settings)
 service = StatisticService(datasource)
+
 
 #==================
 #  UTILS
@@ -101,16 +102,19 @@ def get_last_month_info(filter_by_set: set[StatisticServiceFilter] | None = None
     top_categories_df = service.calculate(
         start_date,
         end_date,
-        group_by_set={StatisticServiceGroup.CATEGORY},
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)},
         filter_by_set=filter_by_set,
+        sort_by_set=None,
         interval=StatisticServiceAggregationInterval.MONTHLY
-    )[:5]
+    )
+    top_categories_df = top_categories_df[:5]
     time.sleep(1)
     top_merchants_df = service.calculate(
         start_date,
         end_date,
-        group_by_set={StatisticServiceGroup.MERCHANT},
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.MERCHANT)},
         filter_by_set=filter_by_set,
+        sort_by_set=None,
         interval=StatisticServiceAggregationInterval.MONTHLY
     )[:5]
     return txn_df, top_categories_df, top_merchants_df
@@ -132,26 +136,47 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
     totals_per_month_df = service.calculate(
         start_date,
         end_date,
-        group_by_set=None,
         filter_by_set=filter_by_set,
+        group_by_set=None,
+        sort_by_set=None,
         interval=StatisticServiceAggregationInterval.MONTHLY
     )
     time.sleep(1)
-    categories_df = service.calculate(
+    top_categories_df = service.calculate(
         start_date,
         end_date,
-        group_by_set={StatisticServiceGroup.CATEGORY},
         filter_by_set=filter_by_set,
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)},
+        sort_by_set=None,
         interval=StatisticServiceAggregationInterval.YEARLY
+    )[:5]
+    time.sleep(1)
+    grocery_filter = {StatisticServiceFilter(column=LunchMoneyFilterColumn.CATEGORY, column_value=LunchMoneyCategory.GROCERIES)}
+    groceries_per_month_df = service.calculate(
+        start_date,
+        end_date,
+        filter_by_set=grocery_filter if filter_by_set is None else grocery_filter | filter_by_set,
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)},
+        sort_by_set=None,
+        interval=StatisticServiceAggregationInterval.MONTHLY
     )
-    groceries_vs_restaurants_per_month_df = categories_df # TODO: implement here OR update service to be able to select by other columns besides "tags"
-    top_categories_df = categories_df[:5]
+    restaurant_filter = {StatisticServiceFilter(column=LunchMoneyFilterColumn.CATEGORY, column_value=LunchMoneyCategory.RESTAURANTS)}
+    restaurants_per_month_df = service.calculate(
+        start_date,
+        end_date,
+        filter_by_set=restaurant_filter if filter_by_set is None else restaurant_filter | filter_by_set,
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)},
+        sort_by_set=None,
+        interval=StatisticServiceAggregationInterval.MONTHLY
+    )
+    groceries_vs_restaurants_per_month_df =  pd.concat([groceries_per_month_df, restaurants_per_month_df], ignore_index=True, sort=False).sort_values(by=['date', 'category'], ignore_index=True)
     time.sleep(1)
     top_merchants_df = service.calculate(
         start_date,
         end_date,
-        group_by_set={StatisticServiceGroup.MERCHANT},
         filter_by_set=filter_by_set,
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.MERCHANT)},
+        sort_by_set=None,
         interval=StatisticServiceAggregationInterval.YEARLY
     )[:5]
     return totals_per_month_df, groceries_vs_restaurants_per_month_df, top_categories_df, top_merchants_df
