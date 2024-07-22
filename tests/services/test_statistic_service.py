@@ -59,8 +59,8 @@ class TestStatisticService(unittest.TestCase):
             None,
             None,
             monthly_interval
-        ), [
-            {'date': '2023-03', 'amount': 316.6666666666667},
+        ).to_dict('records'), [
+            {'date': '2023-03', 'amount': 950.0},
         ])
         
         # Validate FILTER respected and non rent-applicable transactions are filtered out
@@ -71,7 +71,7 @@ class TestStatisticService(unittest.TestCase):
             None,
             None,
             monthly_interval
-        ), [
+        ).to_dict('records'), [
             {'date': '2023-01', 'amount': 100.0},
             {'date': '2023-03', 'amount': 250.0},
         ])
@@ -84,11 +84,11 @@ class TestStatisticService(unittest.TestCase):
             set([StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)]),
             None,
             monthly_interval
-        ), [
+        ).to_dict('records'), [
             {'date': '2023-01', 'category': 'Restaurants', 'amount': 100.0},
             {'date': '2023-02', 'category': 'Groceries', 'amount': 200.0},
-            {'date': '2023-03', 'category': 'Gas', 'amount': 350.0},
             {'date': '2023-03', 'category': 'Groceries', 'amount': 250.0},
+            {'date': '2023-03', 'category': 'Gas', 'amount': 700.0},
         ])
         
         # Validate YEARLY aggregation interval
@@ -99,10 +99,10 @@ class TestStatisticService(unittest.TestCase):
             set([StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)]),
             None,
             StatisticServiceAggregationInterval.YEARLY
-        ), [
-            {'amount': 350.0, 'category': 'Gas', 'date': '2023'},
-            {'amount': 225.0, 'category': 'Groceries', 'date': '2023'},
-            {'amount': 100.0, 'category': 'Restaurants', 'date': '2023'}
+        ).to_dict('records'), [
+            {'amount': 100.0, 'category': 'Restaurants', 'date': '2023'},
+            {'amount': 450.0, 'category': 'Groceries', 'date': '2023'},
+            {'amount': 700.0, 'category': 'Gas', 'date': '2023'},
         ])
 
         # Validate SORT by amount
@@ -113,10 +113,10 @@ class TestStatisticService(unittest.TestCase):
             None,
             set([StatisticServiceSort(column=LunchMoneySortColumn.AMOUNT, ascending=True)]),
             monthly_interval,
-        ), [
+        ).to_dict('records'), [
             {'date': '2023-01', 'amount': 100.0},
             {'date': '2023-02', 'amount': 200},
-            {'date': '2023-03', 'amount': 316.6666666666667},
+            {'date': '2023-03', 'amount': 950.0},  # sum of amounts in March
         ])
 
     def test_get(self):
@@ -129,7 +129,7 @@ class TestStatisticService(unittest.TestCase):
             arrow.get('2023-03-30'),
             None,
             None,
-        ), self.service._format_transactions_df(self.df.iloc[[2, 4, 3]]).to_dict(orient='records'))
+        ).to_dict('records'), self.service._format_transactions_df(self.df.iloc[[2, 4, 3]]).to_dict(orient='records'))
         
         # Validate FILTER respected and non rent-applicable transactions are filtered out
         self.assertEqual(self.service.get(
@@ -137,7 +137,7 @@ class TestStatisticService(unittest.TestCase):
             timeframe_end,
             set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT)]),
             None,
-        ), self.service._format_transactions_df(self.df.iloc[[0, 4]]).to_dict(orient='records'))
+        ).to_dict('records'), self.service._format_transactions_df(self.df.iloc[[0, 4]]).to_dict(orient='records'))
         
         # Validate with empty list of transactions
         self.mock_datasource.get_transactions.return_value = pd.DataFrame({
@@ -154,7 +154,8 @@ class TestStatisticService(unittest.TestCase):
             timeframe_start,
             timeframe_end,
             set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT)]),
-        ), [])
+            None,
+        ).to_dict('records'), [])
 
 if __name__ == '__main__':
     unittest.main()
