@@ -89,11 +89,9 @@ class StatisticService:
         
         # Filter by time
         df = df[(df['date_arrow'] >= timeframe_start) & (df['date_arrow'] <= timeframe_end)]
-        # df['date'] = df['date'].apply(lambda date: date.format('YYYY-MM-DD'))  # remove Arrow to enable pandas filtering, sorting
         
         # Filter by filter criteria (eg: tags)
         df = self._filter_transactions_df(df, filter_by_set)
-        
         
         # Sort by passed sort columns
         df = self._sort_transactions_df(df, sort_by_set)
@@ -166,7 +164,7 @@ class StatisticService:
             return df
 
         # start all values with mask of True
-        combined_mask = pd.Series([True] * len(df))
+        combined_mask = pd.Series([True] * len(df), index=df.index)
         for filter_by in filter_by_set:
             if filter_by.column == LunchMoneyFilterColumn.TAGS:
                 mask = df['tags'].apply(lambda tags: filter_by.column_value in tags if tags is not None else False)
