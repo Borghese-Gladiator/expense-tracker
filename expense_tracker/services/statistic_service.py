@@ -78,6 +78,7 @@ class StatisticService:
             - The Arrow type is used for datetime manipulation and representation.
             - The StatisticServiceFilter, StatisticServiceGroup, and StatisticServiceSort classes are used to define
                 filter, group, and sort criteria, respectively.
+            - StatisticServiceGroup sums amounts (no other implementation currently)
             - The StatisticServiceAggregationInterval enum is used to define the interval at which to aggregate statistics.
 
         Raises:
