@@ -29,6 +29,59 @@ service = StatisticService(datasource)
 #==================
 #  UTILS
 #==================
+"""
+How To Do YTD => aggregate on month
+category = calculate(timeframe_start, timeframe_end, group_by_set=category, aggregate_by=MONTHLY)
+top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=amount, aggregate_by=MONTHLY)
+aggregate_by=MONTHLY
+
+How To Do YTD (rent applicable) => aggregate on month, filter on rent_applicable StatisticServiceFilter
+category = calculate(timeframe_start, timeframe_end, group_by_set=category, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT), aggregate_by=MONTHLY)
+top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=amount, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT), aggregate_by=MONTHLY)
+top_five_locations = calculate(timeframe_start, timeframe_end, group_by_set=location, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT), sort_by=(amount, DESC))
+
+How to Do Last Month
+category = calculate(timeframe_start, timeframe_end, group_by_set=category)
+top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=(amount, DESC))
+top_five_locations = calculate(timeframe_start, timeframe_end, group_by_set=location, sort_by=(amount, DESC))
+
+How to Do Last Month (rent applicable)
+category = calculate(timeframe_start, timeframe_end, group_by_set=category, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT),)
+top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=(amount, DESC), filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT),)
+top_five_locations = calculate(timeframe_start, timeframe_end, group_by_set=location,  sort_by=(amount, DESC), filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT),)
+
+How to Do YTD Expenditure
+spending = get(timeframe_start, timeframe_end)
+rent_applicable_spending = get(timeframe_start, timeframe_end, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT))
+"""
+import time
+import os
+
+import arrow
+import pandas as pd
+from dotenv import load_dotenv
+
+from expense_tracker.et_types import StatisticServiceAggregationInterval, StatisticServiceGroup
+from expense_tracker.datasources.lunch_money_datasource import LunchMoneyDatasource, LunchMoneyDatasourceSettings
+from expense_tracker.et_types.lunch_money_datasource_types import LunchMoneyCategory, LunchMoneyFilterColumn, LunchMoneyGroupColumn, LunchMoneyTag
+from expense_tracker.et_types.statistic_service_types import StatisticServiceFilter
+from expense_tracker.services import StatisticService
+
+
+#==================
+#  CONSTANTS
+#==================
+load_dotenv()
+LUNCH_MONEY_ACCESS_TOKEN = os.getenv('LUNCH_MONEY_API_KEY')
+settings = LunchMoneyDatasourceSettings(access_token=LUNCH_MONEY_ACCESS_TOKEN)
+
+datasource = LunchMoneyDatasource(settings)
+service = StatisticService(datasource)
+
+
+#==================
+#  UTILS
+#==================
 def get_brother_rent_info() -> tuple[
     pd.DataFrame, # Last Month transactions table
     pd.DataFrame, # Last Month top categories
@@ -164,15 +217,6 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         interval=StatisticServiceAggregationInterval.MONTHLY
     )
     time.sleep(1)
-    top_categories_df = service.calculate(
-        start_date,
-        end_date,
-        filter_by_set=filter_by_set,
-        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)},
-        sort_by_set=None,
-        interval=StatisticServiceAggregationInterval.YEARLY
-    )[:5]
-    time.sleep(1)
     grocery_filter = {StatisticServiceFilter(column=LunchMoneyFilterColumn.CATEGORY, column_value=LunchMoneyCategory.GROCERIES)}
     groceries_per_month_df = service.calculate(
         start_date,
@@ -206,7 +250,18 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.MERCHANT)},
         sort_by_set=None,
         interval=StatisticServiceAggregationInterval.YEARLY
-    )[:5]
+    )
+    top_merchants_df = top_merchants_df[:5]
+    time.sleep(1)
+    top_categories_df = service.calculate(
+        start_date,
+        end_date,
+        filter_by_set=filter_by_set,
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)},
+        sort_by_set=None,
+        interval=StatisticServiceAggregationInterval.YEARLY
+    )
+    top_categories_df = top_categories_df[:5]
     return totals_per_month_df, groceries_vs_restaurants_per_month_df, top_categories_df, top_merchants_df
 
 
@@ -221,6 +276,7 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
     ytd_groceries_vs_restaurants_per_month_df,
     ytd_top_categories_per_month_df,
     ytd_top_merchants_per_month,
+    ytd_average_per_month,
 ) = get_brother_rent_info()
 
 print(last_month_txn_df.head())

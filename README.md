@@ -23,7 +23,6 @@ Client has actual usage of expense-tracker to generate stats
 ## Notes
 
 ### To Do
-- [ ] streamlit - green checkmark (model to show if passed rent `1500`)
 - [ ] fix: expense_tracker
   ```
   See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
@@ -48,6 +47,7 @@ Client has actual usage of expense-tracker to generate stats
 - [ ] streamlit - add mobile support
 
 ### Done
+- [X] streamlit - green checkmark (model to show if passed rent `1500`) => DONE, markdown HTML is great!
 - [X] streamlit - implement `"Groceries vs Restaurants per Month"`
   - [X] fix: df to match expected `amount_groceries` and `amount_restaurants` 
 - [X] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
