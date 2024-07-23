@@ -171,7 +171,7 @@ class StatisticService:
         df = self._filter_transactions_df(df, filter_by_set)
 
         # Sort by passed sort columns (support date sorting via temporary variable)
-        df['date'] = df['date_arrow'].apply(lambda date: date.format('YYYY-MM-DD'))
+        df.loc[:, 'date'] = df['date_arrow'].apply(lambda date: date.format('YYYY-MM-DD'))
         df = df.sort_values(by=[sort_by.column.value for sort_by in sort_by_set], ascending=[sort_by.ascending for sort_by in sort_by_set])
         df = df.drop('date', axis=1)
         
@@ -225,5 +225,5 @@ class StatisticService:
             df.insert(0, 'date', df['date_arrow'].apply(lambda date_arrow: date_arrow.format('YYYY-MM-DD')))
             df = df.drop('date_arrow', axis=1)
         if 'tags' in df:
-            df['tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag.value for tag in tags]))
+            df.loc[:, 'tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag.value for tag in tags]))
         return df

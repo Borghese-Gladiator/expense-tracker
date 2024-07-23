@@ -23,12 +23,6 @@ Client has actual usage of expense-tracker to generate stats
 ## Notes
 
 ### To Do
-- [ ] fix: expense_tracker
-  ```
-  See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-    df['date'] = df['date_arrow'].apply(lambda date: date.format('YYYY-MM-DD'))
-  ```
-- [ ] streamlit - fix upside down graphs
 - [ ] streamlit - build in container to be deployable (Docker AND Kubernetes)
 ---
 - [ ] client - Streamlit
@@ -47,6 +41,12 @@ Client has actual usage of expense-tracker to generate stats
 - [ ] streamlit - add mobile support
 
 ### Done
+- [X] streamlit - fix upside down graphs => Not Doing, can't w/o changing value
+- [X] fix: expense_tracker => DONE, make sure I don't use chained indexing with Python (`dfmi['one']['second']` is bad! `dfmi.loc[:, ('one', 'second')]` is good)
+  ```
+  See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+    df['date'] = df['date_arrow'].apply(lambda date: date.format('YYYY-MM-DD'))
+  ```
 - [X] ref: expense_tracker - rename `blah_df` to `df_blah` => find: `/(\s*)(\w+)(_df)(,?)/` AND replace: `$1df_$2$4`
 - [X] streamlit - green checkmark (model to show if passed rent `1500`) => DONE, markdown HTML is great!
 - [X] streamlit - implement `"Groceries vs Restaurants per Month"`
