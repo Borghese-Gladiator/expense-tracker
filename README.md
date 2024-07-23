@@ -47,6 +47,7 @@ Client has actual usage of expense-tracker to generate stats
 - [ ] streamlit - add mobile support
 
 ### Done
+- [X] ref: expense_tracker - rename `blah_df` to `df_blah` => find: `/(\s*)(\w+)(_df)(,?)/` AND replace: `$1df_$2$4`
 - [X] streamlit - green checkmark (model to show if passed rent `1500`) => DONE, markdown HTML is great!
 - [X] streamlit - implement `"Groceries vs Restaurants per Month"`
   - [X] fix: df to match expected `amount_groceries` and `amount_restaurants` 

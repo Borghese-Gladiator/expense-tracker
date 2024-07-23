@@ -67,7 +67,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
                 'tags': set()
             }
         ]
-        expected_df = pd.DataFrame(expected_data)
+        df_expected = pd.DataFrame(expected_data)
 
         # constants
         settings = LunchMoneyDatasourceSettings(access_token="dummy_token")
@@ -78,7 +78,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
         result = datasource.get_transactions(timeframe)
 
         # ASSERT
-        pd.testing.assert_frame_equal(result, expected_df)
+        pd.testing.assert_frame_equal(result, df_expected)
 
     @patch('requests.get')
     def test_get_transactions_http_error(self, mock_get):
