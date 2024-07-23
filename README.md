@@ -9,12 +9,17 @@ Functionality
 ## Usage
 Client has actual usage of expense-tracker to generate stats
 
+Python
 - `cd client`
 - `poetry install`
 - `poetry shell`
   - `make run_streamlit`
   - `make generate_png`
   - `make generate_excel`
+
+Docker
+- `docker build -t streamlit-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
+- `docker run -p 8501:8501 streamlit-expense-tracker`
 
 ### expense-tracker package
 - `poetry install`
@@ -23,9 +28,6 @@ Client has actual usage of expense-tracker to generate stats
 ## Notes
 
 ### To Do
-- [ ] streamlit - build in container to be deployable (Docker AND Kubernetes)
----
-- [ ] client - Streamlit
 - [ ] client - Excel
   - [ ] spike: build in Google Sheets
 - [ ] client - PNG or PDF summary
@@ -39,8 +41,14 @@ Client has actual usage of expense-tracker to generate stats
 - [ ] StatisticService - improve performance of tags by doing subset comparison (`"tags <= filter_by_set" is a subset comparison checking if tags is a subset of filter_by_set`)
   - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
 - [ ] streamlit - add mobile support
+- [ ] streamlit - build in container to be deployable (Kubernetes)
 
 ### Done
+- [ ] streamlit - build in container to be deployable (Docker)
+  - NOTE: This answer is great for debugging Dockerfile failures - https://stackoverflow.com/a/66770818
+    - `docker build -t streamlit-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
+    - `docker run -p 8501:8501 streamlit-expense-tracker`
+- [X] client - Streamlit => DONE
 - [X] streamlit - fix upside down graphs => Not Doing, can't w/o changing value
 - [X] fix: expense_tracker => DONE, make sure I don't use chained indexing with Python (`dfmi['one']['second']` is bad! `dfmi.loc[:, ('one', 'second')]` is good)
   ```
