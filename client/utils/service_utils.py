@@ -169,7 +169,13 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         sort_by_set=None,
         interval=StatisticServiceAggregationInterval.MONTHLY
     )
-    groceries_vs_restaurants_per_month_df =  pd.concat([groceries_per_month_df, restaurants_per_month_df], ignore_index=True, sort=False).sort_values(by=['date', 'category'], ignore_index=True)
+    groceries_vs_restaurants_per_month_df = pd.DataFrame.merge(
+        groceries_per_month_df[['date', 'amount']],
+        restaurants_per_month_df[['date', 'amount']],
+        on=['date'],
+        how='outer',
+        suffixes=('_groceries', '_restaurants')
+    )
     time.sleep(1)
     top_merchants_df = service.calculate(
         start_date,
@@ -180,57 +186,3 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         interval=StatisticServiceAggregationInterval.YEARLY
     )[:5]
     return totals_per_month_df, groceries_vs_restaurants_per_month_df, top_categories_df, top_merchants_df
-
-"""
-def get_ytd_transactions_and_summary(filter_by_set: set[StatisticServiceFilter] | None = None) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    today = arrow.utcnow().date()
-    curr_year_first_day = arrow.get(today).floor('year').date()
-    curr_day_floored = today.floor('day')
-    return get_txn_and_summary(curr_year_first_day, curr_day_floored, filter_by_set)
-
-def get_last_month_transactions_and_summary(filter_by_set: set[StatisticServiceFilter] | None = None) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    today = arrow.utcnow().date()
-    curr_month_first_day = arrow.get(today).floor('month')
-    last_month_first_day = curr_month_first_day.shift(months=-1).date()
-    last_month_last_day = curr_month_first_day.shift(days=-1).date()
-    return get_txn_and_summary(last_month_first_day, last_month_last_day, filter_by_set)
-
-def get_txn_and_summary(start_date, end_date, filter_by_set: set[StatisticServiceFilter] | None = None) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    # MAIN
-    transactions = service.get(
-        start_date,
-        end_date,
-        filter_by_set=filter_by_set,
-    )
-    time.sleep(1)
-    category_groups = service.calculate(
-        start_date,
-        end_date,
-        group_by_set={StatisticServiceGroup.CATEGORY},
-        filter_by_set=filter_by_set,
-        interval=StatisticServiceAggregationInterval.MONTHLY
-    )
-    time.sleep(1)
-    top_merchant_groups = service.calculate(
-        start_date,
-        end_date,
-        group_by_set={StatisticServiceGroup.MERCHANT},
-        filter_by_set=filter_by_set,
-        interval=StatisticServiceAggregationInterval.MONTHLY
-    )[:5]
-    #$ top_location_groups = service.calculate(
-    #$     start_date,
-    #$     end_date,
-    #$     group_by_set={StatisticServiceGroup.MERCHANT},
-    #$     filter_by_set=filter_by_set,
-    #$     interval=StatisticServiceAggregationInterval.MONTHLY
-    #$ )[:5]
-    
-    return (
-        pd.DataFrame(transactions),
-        pd.DataFrame(category_groups),
-        pd.DataFrame(top_merchant_groups),
-        # pd.DataFrame(top_location_groups),
-    )
-
-"""

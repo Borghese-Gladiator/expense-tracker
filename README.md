@@ -23,8 +23,14 @@ Client has actual usage of expense-tracker to generate stats
 ## Notes
 
 ### To Do
-- [ ] streamlit - implement `"Groceries vs Restaurants per Month"`
 - [ ] streamlit - green checkmark (model to show if passed rent `1500`)
+- [ ] fix: expense_tracker
+  ```
+  See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+    df['date'] = df['date_arrow'].apply(lambda date: date.format('YYYY-MM-DD'))
+  ```
+- [ ] streamlit - fix upside down graphs
+- [ ] streamlit - build in container to be deployable (Docker AND Kubernetes)
 ---
 - [ ] client - Streamlit
 - [ ] client - Excel
@@ -39,8 +45,11 @@ Client has actual usage of expense-tracker to generate stats
 - [ ] client - add logging and `logging.getLogger('name.of.library').propagate = False`
 - [ ] StatisticService - improve performance of tags by doing subset comparison (`"tags <= filter_by_set" is a subset comparison checking if tags is a subset of filter_by_set`)
   - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
+- [ ] streamlit - add mobile support
 
 ### Done
+- [X] streamlit - implement `"Groceries vs Restaurants per Month"`
+  - [X] fix: df to match expected `amount_groceries` and `amount_restaurants` 
 - [X] StatisticServiceFilter - implement include/exclude functionality via `FilterCriteria` enum
 - [X] StatisticServiceFilter - implement selecting by other columns besides tags (eg: only get "grocery" + "restaurant" category transactions)
   ```
