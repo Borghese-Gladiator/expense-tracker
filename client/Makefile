@@ -5,6 +5,3 @@ run_streamlit:
 
 run_dash:
 	python app_dash.py
-
-generate_png:
-	python IDK
