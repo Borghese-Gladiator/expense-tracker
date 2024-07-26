@@ -19,6 +19,15 @@ Python
 Docker
 - `docker build -t dash-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
 - `docker run -p 8501:8501 dash-expense-tracker`
+- `docker ps`
+
+Kubernetes
+- `docker pull timshee/dash-expense-tracker:0.1.0`
+- `docker build -t dash-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
+- `minikube start`
+- `kubectl apply -f kubernetes/deployment.yaml`
+- `kubectl apply -f kubernetes/service.yaml`
+- `kubectl get pods`
 
 ### expense-tracker package
 - `poetry install`
@@ -40,6 +49,15 @@ Dash is way better for building reports than Streamlit (in fact, it's just easie
   - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
 
 ### Done
+- [X] dash - Kubernetes
+  ```
+  docker pull timshee/dash-expense-tracker:0.1.0
+  docker build -t dash-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""
+  # generated YAML using ChatGPT: "write exact steps to use my Dockerfile with Kubernetes"
+  kubectl apply -f kubernetes/deployment.yaml
+  kubectl apply -f kubernetes/service.yaml
+  # NOTE: double check tag name is correct, I pushed to DockerHub using 0.1.0 
+  ```
 - [X] dash - Dockerfile => DONE, pushed to DockerHub at [link](https://hub.docker.com/repository/docker/timshee/dash-expense-tracker/general)
   ```
   docker tag dash-expense-tracker timshee/dash-expense-tracker:0.1.0
