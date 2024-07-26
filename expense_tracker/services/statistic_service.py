@@ -106,6 +106,14 @@ class StatisticService:
         if interval is None:
             interval = StatisticServiceAggregationInterval.MONTHLY
 
+        # Discard timezone to avoid confusing results as Lunch Money API returns in UTC and requested has local timezone
+        timeframe_start = arrow.get(timeframe_start.format('YYYY-MM-DD'), tzinfo='UTC')
+        timeframe_end = arrow.get(timeframe_end.format('YYYY-MM-DD'), tzinfo='UTC')
+        # NOTE: The following code respects the timezone of the passed timeframe_start and timeframe_end, BUT the timezone should be discarded instead
+        ## timeframe_start = timeframe_start.to('UTC')
+        ## timeframe_end = timeframe_end.to('UTC')
+
+        # FETCH from Lunch Money API
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
         
         # Filter by time
@@ -162,9 +170,12 @@ class StatisticService:
         if sort_by_set is None:
             sort_by_set = {StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True)}
         
-        # Remove timezone to avoid confusing results as Lunch Money API returns in UTC and requested has local timezone
-        timeframe_start = timeframe_start.to('UTC')
-        timeframe_end = timeframe_end.to('UTC')
+        # Discard timezone to avoid confusing results as Lunch Money API returns in UTC and requested has local timezone
+        timeframe_start = arrow.get(timeframe_start.format('YYYY-MM-DD'), tzinfo='UTC')
+        timeframe_end = arrow.get(timeframe_end.format('YYYY-MM-DD'), tzinfo='UTC')
+        # NOTE: The following code respects the timezone of the passed timeframe_start and timeframe_end, BUT the timezone should be discarded instead
+        ## timeframe_start = timeframe_start.to('UTC')
+        ## timeframe_end = timeframe_end.to('UTC')
         
         # FETCH from Lunch Money API
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
