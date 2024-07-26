@@ -14,12 +14,11 @@ Python
 - `poetry install`
 - `poetry shell`
   - `make run_streamlit`
-  - `make generate_png`
-  - `make generate_excel`
+  - `make run dash` - click "Download PNG" button to get report
 
 Docker
-- `docker build -t streamlit-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
-- `docker run -p 8501:8501 streamlit-expense-tracker`
+- `docker build -t dash-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
+- `docker run -p 8501:8501 dash-expense-tracker`
 
 ### expense-tracker package
 - `poetry install`
@@ -29,20 +28,35 @@ Docker
 Dash is way better for building reports than Streamlit (in fact, it's just easier in general because I always want to add icons and customize stuff)
 
 ### To Do
-- [ ] update repo description
+- 07/25 bugs
+  - [ ] Jun 1st not being included (check bounds)
+  - [ ] "source" not appearing when not Fidelity (eg: "Chase CREDIT CARD")
+---
+- [ ] dash - mobile support
 - [ ] datasource - cache results in SQLite database (per datasource?)
 - [ ] expense_tracker - add library logging
 - [ ] client - add logging and `logging.getLogger('name.of.library').propagate = False`
 - [ ] StatisticService - improve performance of tags by doing subset comparison (`"tags <= filter_by_set" is a subset comparison checking if tags is a subset of filter_by_set`)
   - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
-- [ ] streamlit - add mobile support
-- [ ] streamlit - build in container to be deployable (Kubernetes)
 
 ### Done
-- [ ] streamlit - build in container to be deployable (Docker)
+- [X] dash - Dockerfile => DONE, pushed to DockerHub at [link](https://hub.docker.com/repository/docker/timshee/dash-expense-tracker/general)
+  ```
+  docker tag dash-expense-tracker timshee/dash-expense-tracker:0.1.0
+  docker login
+  docker push timshee/dash-expense-tracker:0.1.0
+  ```
+- [X] dash - normalize colors using Bootstrap
+- [X] update repo description
+- [X] streamlit - build in container to be deployable (Docker) => DONE for Streamlit
   - NOTE: This answer is great for debugging Dockerfile failures - https://stackoverflow.com/a/66770818
-    - `docker build -t streamlit-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
-    - `docker run -p 8501:8501 streamlit-expense-tracker`
+    - run in buildkit mode to get cache layer hashes
+      - `DOCKER_BUILDKIT=0`
+      - CMD: `set DOCKER_BUILDKIT=0`
+      - Powershell: `$env:DOCKER_BUILDKIT=0`
+    - open cache layer with: `docker run --rm -it <id_last_working_layer> bash -il`
+  - `docker build -t streamlit-expense-tracker . --build-arg LUNCH_MONEY_API_KEY=""`
+  - `docker run -p 8501:8501 streamlit-expense-tracker`
 - [X] client - Streamlit => DONE
 - [X] streamlit - fix upside down graphs => Not Doing, can't w/o changing value
 - [X] fix: expense_tracker => DONE, make sure I don't use chained indexing with Python (`dfmi['one']['second']` is bad! `dfmi.loc[:, ('one', 'second')]` is good)
@@ -91,6 +105,8 @@ Dash is way better for building reports than Streamlit (in fact, it's just easie
   - [X] get
 
 ### Iced
+- [ ] streamlit - add mobile support
+- [ ] streamlit - build in container to be deployable (Kubernetes)
 - [ ] client - PNG or PDF summary => Decided Against
   - [ ] spike: Discord integration
   - [ ] spike: Messenger integration
