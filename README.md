@@ -37,10 +37,6 @@ Kubernetes
 Dash is way better for building reports than Streamlit (in fact, it's just easier in general because I always want to add icons and customize stuff)
 
 ### To Do
-- 07/25 bugs
-  - [ ] Jun 1st not being included (check bounds)
-  - [ ] "source" not appearing when not Fidelity (eg: "Chase CREDIT CARD")
----
 - [ ] dash - mobile support
 - [ ] datasource - cache results in SQLite database (per datasource?)
 - [ ] expense_tracker - add library logging
@@ -49,6 +45,9 @@ Dash is way better for building reports than Streamlit (in fact, it's just easie
   - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
 
 ### Done
+- 07/25 bugs
+  - [X] Jun 1st not being included (check bounds)
+  - [X] "source" not appearing when not Fidelity (eg: "Chase CREDIT CARD")
 - [X] dash - Kubernetes
   ```
   docker pull timshee/dash-expense-tracker:0.1.0
