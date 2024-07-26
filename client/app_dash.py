@@ -134,11 +134,23 @@ app.layout = html.Div(children=[
     ),
     
     html.H3(id='last-month-header', children=f"{last_month_name.upper()} Expenses"),
-    html.P(id='last-month-rent-met-text', children=f"TOTAL: ${last_month_rent_sum:,.2f}"),
+    html.H6(id='last-month-rent-met-text', children=f"{last_month_name.upper()} Total: ${last_month_rent_sum:,.2f}"),
     last_month_rent_met_component,
     dash_table.DataTable(
         df_last_month_txn.to_dict('records'),
         [{"name": i, "id": i} for i in df_last_month_txn.columns],
+        style_header_conditional=[
+            {
+                'if': {'column_id': 'amount'},
+                'fontWeight': 'bold'
+            }
+        ],
+        style_data_conditional=[
+            {
+                'if': {'column_id': 'amount'},
+                'fontWeight': 'bold'
+            }
+        ]
     ),
     dcc.Graph(
         id='last-month-top-categories',
@@ -151,7 +163,7 @@ app.layout = html.Div(children=[
 
     html.H3(id='ytd-header', children=f"{curr_year_name} Expenses"),
     ytd_rent_met_component,
-    html.P(id='ytd-rent-met-text', children=f"${ytd_rent_avg:,.2f}"),
+    html.H6(id='ytd-rent-met-text', children=f"{curr_year_name} Average Expenses: ${ytd_rent_avg:,.2f}"),
     dcc.Graph(
         id='ytd-totals-per-month',
         figure=chart_ytd_totals_per_month
