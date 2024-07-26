@@ -29,13 +29,7 @@ Docker
 Dash is way better for building reports than Streamlit (in fact, it's just easier in general because I always want to add icons and customize stuff)
 
 ### To Do
-- [ ] client - Excel
-  - [ ] spike: build in Google Sheets
-- [ ] client - PNG or PDF summary
-  - [ ] spike: Discord integration
-  - [ ] spike: Messenger integration
 - [ ] update repo description
----
 - [ ] datasource - cache results in SQLite database (per datasource?)
 - [ ] expense_tracker - add library logging
 - [ ] client - add logging and `logging.getLogger('name.of.library').propagate = False`
@@ -97,6 +91,11 @@ Dash is way better for building reports than Streamlit (in fact, it's just easie
   - [X] get
 
 ### Iced
+- [ ] client - PNG or PDF summary => Decided Against
+  - [ ] spike: Discord integration
+  - [ ] spike: Messenger integration
+- [ ] client - Excel
+  - [ ] spike: build in Google Sheets
 - [ ] add pre commit hooks
 ---
 - write ETL pipeline to get near real-time data
