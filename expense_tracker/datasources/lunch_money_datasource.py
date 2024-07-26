@@ -95,7 +95,7 @@ class LunchMoneyDatasource(BaseDatasource):
                 'merchant': txn['payee'],
                 'category': txn['category_name'],
                 'description': txn['notes'],
-                'source': "manual" if txn['source'] == 'manual' else txn["asset_display_name"],
+                'source': "manual" if txn['source'] == 'manual' else txn["account_display_name"],
                 'tags': set([LunchMoneyTag(tag["name"]) for tag in txn["tags"]]),
                 # TODO(07/04/2024) - add "location" when lunch money adds it to API => Lunch Money will not add location info since Plaid's location value is mostly empty
             })

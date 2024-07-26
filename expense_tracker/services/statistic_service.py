@@ -162,6 +162,11 @@ class StatisticService:
         if sort_by_set is None:
             sort_by_set = {StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True)}
         
+        # Remove timezone to avoid confusing results as Lunch Money API returns in UTC and requested has local timezone
+        timeframe_start = timeframe_start.to('UTC')
+        timeframe_end = timeframe_end.to('UTC')
+        
+        # FETCH from Lunch Money API
         df: DataFrame[TransactionsSchema] = self.datasource.get_transactions(Timeframe(timeframe_start, timeframe_end))
 
         # Filter by time
