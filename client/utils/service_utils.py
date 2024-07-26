@@ -77,9 +77,8 @@ def get_brother_rent_info() -> tuple[
         df_ytd_totals_per_month,
         df_ytd_groceries_vs_restaurants_per_month,
         df_ytd_top_categories_per_month,
-        ytd_top_merchants_per_month,
+        df_ytd_top_merchants_per_month,
     ) = get_ytd_info(filter_by_set)
-    avg_per_month = df_ytd_totals_per_month['amount'].mean()
     return (
         df_last_month_txn,
         df_last_month_top_categories,
@@ -87,8 +86,7 @@ def get_brother_rent_info() -> tuple[
         df_ytd_totals_per_month,
         df_ytd_groceries_vs_restaurants_per_month,
         df_ytd_top_categories_per_month,
-        ytd_top_merchants_per_month,
-        avg_per_month,
+        df_ytd_top_merchants_per_month,
     )
 
 def get_total_rent_info() -> tuple[
@@ -99,7 +97,6 @@ def get_total_rent_info() -> tuple[
     pd.DataFrame, # YTD groceries vs restaurants per month
     pd.DataFrame, # YTD top categories per month
     pd.DataFrame, # YTD top merchants per month
-    float, # Avg per month
 ]:
     (
         df_last_month_txn,
@@ -112,7 +109,6 @@ def get_total_rent_info() -> tuple[
         df_ytd_top_categories_per_month,
         ytd_top_merchants_per_month,
     ) = get_ytd_info()
-    avg_per_month = df_ytd_totals_per_month['amount'].mean()
     return (
         df_last_month_txn,
         df_last_month_top_categories,
@@ -121,7 +117,6 @@ def get_total_rent_info() -> tuple[
         df_ytd_groceries_vs_restaurants_per_month,
         df_ytd_top_categories_per_month,
         ytd_top_merchants_per_month,
-        avg_per_month,
     )
 
 def get_last_month_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tuple[
@@ -216,16 +211,6 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         suffixes=('_groceries', '_restaurants')
     )
     time.sleep(1)
-    df_top_merchants = service.calculate(
-        start_date,
-        end_date,
-        filter_by_set=filter_by_set,
-        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.MERCHANT)},
-        sort_by_set=None,
-        interval=StatisticServiceAggregationInterval.YEARLY
-    )
-    df_top_merchants = df_top_merchants[:5]
-    time.sleep(1)
     df_top_categories = service.calculate(
         start_date,
         end_date,
@@ -235,6 +220,16 @@ def get_ytd_info(filter_by_set: set[StatisticServiceFilter] | None = None) -> tu
         interval=StatisticServiceAggregationInterval.YEARLY
     )
     df_top_categories = df_top_categories[:5]
+    time.sleep(1)
+    df_top_merchants = service.calculate(
+        start_date,
+        end_date,
+        filter_by_set=filter_by_set,
+        group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.MERCHANT)},
+        sort_by_set=None,
+        interval=StatisticServiceAggregationInterval.YEARLY
+    )
+    df_top_merchants = df_top_merchants[:5]
     return (
         df_totals_per_month,
         df_groceries_vs_restaurants_per_month,

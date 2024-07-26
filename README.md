@@ -26,6 +26,7 @@ Docker
 - `python -m unittest discover`
 
 ## Notes
+Dash is way better for building reports than Streamlit (in fact, it's just easier in general because I always want to add icons and customize stuff)
 
 ### To Do
 - [ ] client - Excel

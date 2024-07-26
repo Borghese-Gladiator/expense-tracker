@@ -2,12 +2,12 @@ import arrow
 import streamlit as st
 import plotly.express as px
 
+from utils.constants import RENT_REQUIRED
 from utils.service_utils import get_brother_rent_info, get_total_rent_info
 
 #==================
 #  CONSTANTS
 #==================
-RENT_REQUIRED = -1500  # expenses are negative 
 (
     df_last_month_txn,
     df_last_month_top_categories,
@@ -16,8 +16,8 @@ RENT_REQUIRED = -1500  # expenses are negative
     df_ytd_groceries_vs_restaurants_per_month,
     df_ytd_top_categories_per_month,
     ytd_top_merchants_per_month,
-    ytd_average_monthly_rent,
 ) = get_brother_rent_info()
+ytd_average_monthly_rent = df_ytd_totals_per_month['amount'].mean()
 
 # (
 #     df_total_last_month_txn,

@@ -1,10 +1,10 @@
 .PHONY: run_streamlit generate_png generate_xlsx
 
 run_streamlit:
-	streamlit run streamlit_app.py
+	streamlit run app_streamlit.py
+
+run_dash:
+	python app_dash.py
 
 generate_png:
-	python generators/generate_png_summary.py
-
-generate_excel:
-	python generators/generate_excel.py
+	python IDK
