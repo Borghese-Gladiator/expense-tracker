@@ -87,6 +87,14 @@ x_btn_style = {
 #==================
 #  UTILS
 #==================
+
+# add percentages to df
+df_last_month_top_categories['percent'] = df_last_month_top_categories['amount'] / df_last_month_top_categories['amount'].sum()
+df_last_month_top_merchants['percent'] = df_last_month_top_merchants['amount'] / df_last_month_top_merchants['amount'].sum()
+df_ytd_top_categories_per_month['percent'] = df_ytd_top_categories_per_month['amount'] / df_ytd_top_categories_per_month['amount'].sum()
+df_ytd_top_merchants_per_month['percent'] = df_ytd_top_merchants_per_month['amount'] / df_ytd_top_merchants_per_month['amount'].sum()
+
+# build button based on if rent is met
 last_month_rent_sum = df_last_month_txn['amount'].sum()
 if last_month_rent_sum <= RENT_REQUIRED:
     last_month_rent_met_component = html.A(
@@ -173,8 +181,16 @@ chart_ytd_top_merchants_per_month = px.bar(
 chart_last_month_top_categories.update_layout(
     xaxis_title=None, yaxis_title=None
 )
+chart_last_month_top_categories.update_traces(
+    text=[f"{percent:.2%}" for percent in df_last_month_top_categories['percent']],
+    textposition='outside'
+)
 chart_last_month_top_merchants.update_layout(
     xaxis_title=None, yaxis_title=None
+)
+chart_last_month_top_merchants.update_traces(
+    text=[f"{percent:.2%}" for percent in df_last_month_top_merchants['percent']],
+    textposition='outside'
 )
 chart_ytd_totals_per_month.update_layout(
     xaxis_title=None, yaxis_title=None
@@ -185,8 +201,16 @@ chart_ytd_groceries_vs_restaurants_per_month.update_layout(
 chart_ytd_top_categories_per_month.update_layout(
     xaxis_title=None, yaxis_title=None
 )
+chart_ytd_top_categories_per_month.update_traces(
+    text=[f"{percent:.2%}" for percent in df_ytd_top_categories_per_month['percent']],
+    textposition='outside'
+)
 chart_ytd_top_merchants_per_month.update_layout(
     xaxis_title=None, yaxis_title=None
+)
+chart_ytd_top_merchants_per_month.update_traces(
+    text=[f"{percent:.2%}" for percent in df_ytd_top_merchants_per_month['percent']],
+    textposition='outside'
 )
 
 #==================
