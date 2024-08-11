@@ -242,4 +242,6 @@ class StatisticService:
             df = df.drop('date_arrow', axis=1)
         if 'tags' in df:
             df.loc[:, 'tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag.value for tag in tags]))
+        if 'amount' in df:
+            df.loc[:, 'amount'] = df['amount'].astype(float).round(2)
         return df
