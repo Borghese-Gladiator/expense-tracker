@@ -41,10 +41,11 @@ DOWNLOAD_PNG_FILENAME = f"{curr_year_name}_{last_month_name}_timmy-jon-expense-t
     df_last_month_top_merchants,
     df_ytd_totals_per_month,
     df_ytd_groceries_vs_restaurants_per_month,
-    df_ytd_top_categories_per_month,
-    df_ytd_top_merchants_per_month,
+    df_ytd_categories,
+    df_ytd_top_categories,
+    df_ytd_merchants,
+    df_ytd_top_merchants,
 ) = get_report_personal()
-
 
 #==================
 #  UTILS
@@ -64,8 +65,8 @@ df_last_month_txn = pd.concat([
 # GRAPH - add percentages to df
 df_last_month_top_categories['percent'] = df_last_month_top_categories['amount'] / df_last_month_top_categories['amount'].sum()
 df_last_month_top_merchants['percent'] = df_last_month_top_merchants['amount'] / df_last_month_top_merchants['amount'].sum()
-df_ytd_top_categories_per_month['percent'] = df_ytd_top_categories_per_month['amount'] / df_ytd_top_categories_per_month['amount'].sum()
-df_ytd_top_merchants_per_month['percent'] = df_ytd_top_merchants_per_month['amount'] / df_ytd_top_merchants_per_month['amount'].sum()
+df_ytd_top_categories['percent'] = df_ytd_top_categories['amount'] / df_ytd_top_categories['amount'].sum()
+df_ytd_top_merchants['percent'] = df_ytd_top_merchants['amount'] / df_ytd_top_merchants['amount'].sum()
 
 # PLOTLY - create charts
 chart_last_month_top_categories = build_bar_chart_with_settings(
