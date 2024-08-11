@@ -51,6 +51,16 @@ x_btn_style = {
 #==================
 #  UTILS
 #==================
+def build_horizontal_center_via_div(children):
+    return html.Div(
+        children=children,
+        style={
+            'display': 'flex',
+            'justifyContent': 'center',
+            'alignItems': 'center'
+        }
+    )
+
 def build_rent_met_button(rent_met: bool):
     if rent_met:
         return html.A(

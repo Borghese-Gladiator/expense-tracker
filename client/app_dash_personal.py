@@ -27,7 +27,7 @@ from dash.dash_table import DataTable, FormatTemplate
 import dash_bootstrap_components as dbc
 import pandas as pd
 
-from utils.dash_utils import build_bar_chart_with_settings
+from utils.dash_utils import build_bar_chart_with_settings, build_horizontal_center_via_div
 from utils.service_utils import get_report_personal
 
 #==================
@@ -55,6 +55,18 @@ two_decimal_format = FormatTemplate.money(2)
 #==================
 #  UTILS
 #==================
+
+def build_columns(columns):
+    return [
+        {"name": col, "id": col, "type": "numeric", "format": two_decimal_format} if col == "amount" else {"name": col, "id": col}
+        for col in columns
+    ]
+
+# TABLE - format amount column
+df_ytd_merchants_cols = build_columns(df_ytd_merchants.columns)
+df_ytd_categories_cols = build_columns(df_ytd_categories.columns)
+df_last_month_txn_cols = build_columns(df_last_month_txn.columns)
+
 # TABLE - Transactions Table - drop problematic columns
 df_last_month_txn = df_last_month_txn.drop('tags', axis=1)  # set not supported by Dash DataTable
 df_last_month_txn = df_last_month_txn.drop('description', axis=1)  # blank column most of the time
@@ -138,9 +150,9 @@ app.layout = html.Div(id='page', children=[
         html.Span(children=f"{last_month_name.upper()} Total: "),
     ]),
     
-    dash_table.DataTable(
+    DataTable(
         df_last_month_txn.to_dict('records'),
-        [{"name": i, "id": i} for i in df_last_month_txn.columns],
+        df_last_month_txn_cols,
         style_table={
             'width': '100%',
             'overflowX': 'auto',
@@ -160,7 +172,8 @@ app.layout = html.Div(id='page', children=[
                 'if': {'row_index': len(df_last_month_txn) - 1},
                 'fontWeight': 'bold'
             }
-        ]
+        ],
+        fill_width=False
     ),
     dcc.Graph(
         id='last-month-top-categories',
@@ -176,17 +189,9 @@ app.layout = html.Div(id='page', children=[
         id='ytd-totals-per-month',
         figure=chart_ytd_totals_per_month
     ),
-    dcc.Graph(
-        id='ytd-top-categories',
-        figure=chart_ytd_top_categories
-    ),
-    dcc.Graph(
-        id='ytd-top-merchants',
-        figure=chart_ytd_top_merchants
-    ),
     DataTable(
-        df_ytd_merchants.to_dict('records'),
-        [{"name": i, "id": i} for i in df_ytd_merchants.columns],
+        df_ytd_categories.to_dict('records'),
+        df_ytd_categories_cols,
         style_header_conditional=[
             {
                 'if': {'column_id': 'amount'},
@@ -198,8 +203,58 @@ app.layout = html.Div(id='page', children=[
                 'if': {'column_id': 'amount'},
                 'fontWeight': 'bold'
             }
-        ]
+        ],
+        fill_width=False
     ),
+    
+    dcc.Graph(
+        id='ytd-top-categories',
+        figure=chart_ytd_top_categories
+    ),
+    build_horizontal_center_via_div(
+        DataTable(
+            df_ytd_categories.to_dict('records'),
+            df_ytd_categories_cols,
+            style_header_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            style_data_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            fill_width=False
+        )
+    ),
+
+    dcc.Graph(
+        id='ytd-top-merchants',
+        figure=chart_ytd_top_merchants
+    ),
+    build_horizontal_center_via_div(
+        DataTable(
+            df_ytd_merchants.to_dict('records'),
+            df_ytd_merchants_cols,
+            style_header_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            style_data_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            fill_width=False
+        ),
+    )
+    
 ], style={
     'marginLeft': '30px',
     'marginRight': '30px',

@@ -27,7 +27,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 
 from utils.constants import RENT_REQUIRED
-from utils.dash_utils import build_bar_chart_with_settings, build_rent_met_button
+from utils.dash_utils import build_bar_chart_with_settings, build_horizontal_center_via_div, build_rent_met_button
 from utils.service_utils import get_report_rent_applicable
 
 #==================
@@ -55,10 +55,16 @@ two_decimal_format = FormatTemplate.money(2)
 #==================
 #  UTILS
 #==================
-df_ytd_merchants_cols = [
-    {"name": col, "id": col, "type": "numeric", "format": two_decimal_format} if col == "amount" else {"name": col, "id": col}
-    for col in df_ytd_merchants.columns
-]
+def build_columns(columns):
+    return [
+        {"name": col, "id": col, "type": "numeric", "format": two_decimal_format} if col == "amount" else {"name": col, "id": col}
+        for col in columns
+    ]
+
+# TABLE - format amount column
+df_ytd_merchants_cols = build_columns(df_ytd_merchants.columns)
+df_ytd_categories_cols = build_columns(df_ytd_categories.columns)
+df_last_month_txn_cols = build_columns(df_last_month_txn.columns)
 
 # TABLE - drop problematic columns
 ## Transactions Table
@@ -151,7 +157,7 @@ app = dash.Dash(
 )
 app.layout = html.Div(id='page', children=[
     html.H1(
-        children='Jon and Timmy Expense Tracker',
+        children='RENT APPLICABLE Expense Report',
         style={
             'textAlign': 'center',
         }
@@ -173,7 +179,7 @@ app.layout = html.Div(id='page', children=[
     last_month_rent_met_component,
     DataTable(
         df_last_month_txn.to_dict('records'),
-        [{"name": i, "id": i} for i in df_last_month_txn.columns],
+        df_last_month_txn_cols,
         style_table={
             'width': '100%',
             'overflowX': 'auto',
@@ -189,7 +195,8 @@ app.layout = html.Div(id='page', children=[
                 'if': {'column_id': 'amount'},
                 'fontWeight': 'bold'
             }
-        ]
+        ],
+        fill_width=False
     ),
     dcc.Graph(
         id='last-month-top-categories',
@@ -219,43 +226,49 @@ app.layout = html.Div(id='page', children=[
         id='ytd-top-categories',
         figure=chart_ytd_top_categories
     ),
-    DataTable(
-        df_ytd_categories.to_dict('records'),
-        [{"name": i, "id": i} for i in df_ytd_categories.columns],
-        style_header_conditional=[
-            {
-                'if': {'column_id': 'amount'},
-                'fontWeight': 'bold'
-            }
-        ],
-        style_data_conditional=[
-            {
-                'if': {'column_id': 'amount'},
-                'fontWeight': 'bold'
-            }
-        ]
+    build_horizontal_center_via_div(
+        DataTable(
+            df_ytd_categories.to_dict('records'),
+            df_ytd_categories_cols,
+            style_header_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            style_data_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            fill_width=False
+        )
     ),
 
     dcc.Graph(
         id='ytd-top-merchants',
         figure=chart_ytd_top_merchants
     ),
-    DataTable(
-        df_ytd_merchants.to_dict('records'),
-        df_ytd_merchants_cols,
-        style_header_conditional=[
-            {
-                'if': {'column_id': 'amount'},
-                'fontWeight': 'bold'
-            }
-        ],
-        style_data_conditional=[
-            {
-                'if': {'column_id': 'amount'},
-                'fontWeight': 'bold'
-            }
-        ]
-    ),
+    build_horizontal_center_via_div(
+        DataTable(
+            df_ytd_merchants.to_dict('records'),
+            df_ytd_merchants_cols,
+            style_header_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            style_data_conditional=[
+                {
+                    'if': {'column_id': 'amount'},
+                    'fontWeight': 'bold'
+                }
+            ],
+            fill_width=False
+        ),
+    )
 ], style={
     'marginLeft': '30px',
     'marginRight': '30px',
