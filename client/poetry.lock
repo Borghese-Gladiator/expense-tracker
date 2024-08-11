@@ -412,7 +412,7 @@ requests = "^2.32.3"
 type = "git"
 url = "https://github.com/Borghese-Gladiator/expense-tracker.git"
 reference = "HEAD"
-resolved_reference = "8448c3260bdff345d37c11548ae6fc1b6aefecf7"
+resolved_reference = "daf22ec408b63352494cc97df6b134108f99bc89"
 
 [[package]]
 name = "flask"
