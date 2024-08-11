@@ -243,7 +243,5 @@ class StatisticService:
         if 'tags' in df:
             df.loc[:, 'tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag.value for tag in tags]))
         if 'amount' in df:
-            series_amount = df['amount'].apply(lambda x: "{:.2f}".format(x))
-            df = df.drop('amount', axis=1)
-            df.insert(1, 'amount', series_amount)
+            df.loc[:, 'amount'] = df['amount'].astype(float).round(2)
         return df
