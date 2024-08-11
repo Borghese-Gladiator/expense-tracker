@@ -1,28 +1,4 @@
-"""
-How To Do YTD => aggregate on month
-category = calculate(timeframe_start, timeframe_end, group_by_set=category, aggregate_by=MONTHLY)
-top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=amount, aggregate_by=MONTHLY)
-aggregate_by=MONTHLY
 
-How To Do YTD (rent applicable) => aggregate on month, filter on rent_applicable StatisticServiceFilter
-category = calculate(timeframe_start, timeframe_end, group_by_set=category, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT), aggregate_by=MONTHLY)
-top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=amount, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT), aggregate_by=MONTHLY)
-top_five_locations = calculate(timeframe_start, timeframe_end, group_by_set=location, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT), sort_by=(amount, DESC))
-
-How to Do Last Month
-category = calculate(timeframe_start, timeframe_end, group_by_set=category)
-top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=(amount, DESC))
-top_five_locations = calculate(timeframe_start, timeframe_end, group_by_set=location, sort_by=(amount, DESC))
-
-How to Do Last Month (rent applicable)
-category = calculate(timeframe_start, timeframe_end, group_by_set=category, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT),)
-top_five_merchants = calculate(timeframe_start, timeframe_end, group_by_set=merchant, sort_by=(amount, DESC), filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT),)
-top_five_locations = calculate(timeframe_start, timeframe_end, group_by_set=location,  sort_by=(amount, DESC), filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT),)
-
-How to Do YTD Expenditure
-spending = get(timeframe_start, timeframe_end)
-rent_applicable_spending = get(timeframe_start, timeframe_end, filter_by_set=StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT))
-"""
 import time
 import os
 
@@ -51,7 +27,7 @@ service = StatisticService(datasource)
 #==================
 #  UTILS
 #==================
-def get_brother_rent_info() -> tuple[
+def get_report_rent_applicable() -> tuple[
     pd.DataFrame, # Last Month transactions table
     pd.DataFrame, # Last Month top categories
     pd.DataFrame, # Last Month top merchants
@@ -87,6 +63,45 @@ def get_brother_rent_info() -> tuple[
         df_ytd_groceries_vs_restaurants_per_month,
         df_ytd_top_categories_per_month,
         df_ytd_top_merchants_per_month,
+    )
+
+def get_report_personal() -> tuple[
+    pd.DataFrame, # Last Month transactions table
+    pd.DataFrame, # Last Month top categories
+    pd.DataFrame, # Last Month top merchants
+    pd.DataFrame, # YTD totals per month
+    pd.DataFrame, # YTD groceries vs restaurants per month
+    pd.DataFrame, # YTD top categories per month
+    pd.DataFrame, # YTD top merchants per month
+]:
+    filter_by_set = set(
+        [
+            StatisticServiceFilter(
+                column=LunchMoneyFilterColumn.TAGS,
+                column_value=LunchMoneyTag.BROTHER_RENT,
+                exclude=True
+            )
+        ]
+    )
+    (
+        df_last_month_txn,
+        df_last_month_top_categories,
+        df_last_month_top_merchants,
+    ) = get_last_month_info(filter_by_set)
+    (
+        df_ytd_totals_per_month,
+        df_ytd_groceries_vs_restaurants_per_month,
+        df_ytd_top_categories_per_month,
+        ytd_top_merchants_per_month,
+    ) = get_ytd_info(filter_by_set)
+    return (
+        df_last_month_txn,
+        df_last_month_top_categories,
+        df_last_month_top_merchants,
+        df_ytd_totals_per_month,
+        df_ytd_groceries_vs_restaurants_per_month,
+        df_ytd_top_categories_per_month,
+        ytd_top_merchants_per_month,
     )
 
 def get_total_rent_info() -> tuple[

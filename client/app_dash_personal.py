@@ -1,5 +1,5 @@
 """
-Report for Rent Applicable 
+Report for Personal Transactions separate from Rent Applicable ones
 
 Report includes:
 - Last Month
@@ -10,10 +10,9 @@ Report includes:
     - Totals per Month BAR CHART - Rent Applicable + Non-Rent Applicable
     - Top Categories per Month BAR CHART
     - Top Merchants per Month BAR CHART
+    - Total Expenses per Category TABLE
     - Total Expenses per Merchant TABLE
 """
-
-from dataclasses import dataclass, fields
 import arrow
 import dash
 from dash import (
@@ -26,20 +25,16 @@ from dash import (
 )
 import dash_bootstrap_components as dbc
 import pandas as pd
-import plotly.express as px
 
-from utils.constants import RENT_REQUIRED
-from utils.dash_utils import build_bar_chart_with_settings, build_rent_met_button
-from utils.service_utils import get_report_rent_applicable
+from utils.dash_utils import build_bar_chart_with_settings
+from utils.service_utils import get_report_personal
 
 #==================
 #  CONSTANTS
 #==================
 last_month_name = arrow.now().shift(months=-1).format("MMMM")
 curr_year_name = arrow.now().format("YYYY")
-
 DOWNLOAD_PNG_FILENAME = f"{curr_year_name}_{last_month_name}_timmy-jon-expense-tracker"
-
 (
     df_last_month_txn,
     df_last_month_top_categories,
@@ -48,7 +43,8 @@ DOWNLOAD_PNG_FILENAME = f"{curr_year_name}_{last_month_name}_timmy-jon-expense-t
     df_ytd_groceries_vs_restaurants_per_month,
     df_ytd_top_categories_per_month,
     df_ytd_top_merchants_per_month,
-) = get_report_rent_applicable()
+) = get_report_personal()
+
 
 #==================
 #  UTILS
@@ -71,16 +67,6 @@ df_last_month_top_merchants['percent'] = df_last_month_top_merchants['amount'] /
 df_ytd_top_categories_per_month['percent'] = df_ytd_top_categories_per_month['amount'] / df_ytd_top_categories_per_month['amount'].sum()
 df_ytd_top_merchants_per_month['percent'] = df_ytd_top_merchants_per_month['amount'] / df_ytd_top_merchants_per_month['amount'].sum()
 
-# BUTTON - build button based on if rent is met
-last_month_rent_sum = df_last_month_txn['amount'].sum()
-last_month_rent_met_component = build_rent_met_button(last_month_rent_sum <= RENT_REQUIRED)
-ytd_rent_avg = df_ytd_totals_per_month['amount'].mean()
-ytd_rent_met_component = build_rent_met_button(ytd_rent_avg <= RENT_REQUIRED)
-
-# TABLE - create Actual vs Expected for YTD Totals per Month
-df_ytd_totals_per_month.rename(columns={'amount': 'actual'}, inplace=True)
-df_ytd_totals_per_month['expected'] = RENT_REQUIRED
-
 # PLOTLY - create charts
 chart_last_month_top_categories = build_bar_chart_with_settings(
     df=df_last_month_top_categories,
@@ -99,13 +85,6 @@ chart_ytd_totals_per_month = build_bar_chart_with_settings(
     title=f"{curr_year_name} Totals per Month",
     x="date",
     y="amount",
-    barmode="group",
-)
-chart_ytd_groceries_vs_restaurants_per_month = build_bar_chart_with_settings(
-    df=df_ytd_groceries_vs_restaurants_per_month,
-    title=f"{curr_year_name} Groceries/Restaurants per Month",
-    x="date",
-    y=["amount_groceries", "amount_restaurants"],
     barmode="group",
 )
 chart_ytd_top_categories_per_month = build_bar_chart_with_settings(
@@ -135,7 +114,7 @@ app = dash.Dash(
 )
 app.layout = html.Div(id='page', children=[
     html.H1(
-        children='Jon and Timmy Expense Tracker',
+        children='PERSONAL Expenses (w/o Rent Applicable)',
         style={
             'textAlign': 'center',
         }
@@ -151,10 +130,8 @@ app.layout = html.Div(id='page', children=[
     html.H3(id='last-month-header', children=f"{last_month_name.upper()} Expenses"),
     html.H6(id='last-month-rent-met-text', children=[
         html.Span(children=f"{last_month_name.upper()} Total: "),
-        html.Span(children=f"${last_month_rent_sum:,.2f}", style={'fontWeight': 'bold'}),
     ]),
     
-    last_month_rent_met_component,
     dash_table.DataTable(
         df_last_month_txn.to_dict('records'),
         [{"name": i, "id": i} for i in df_last_month_txn.columns],
@@ -172,6 +149,10 @@ app.layout = html.Div(id='page', children=[
             {
                 'if': {'column_id': 'amount'},
                 'fontWeight': 'bold'
+            },
+            {
+                'if': {'row_index': len(df_last_month_txn) - 1},
+                'fontWeight': 'bold'
             }
         ]
     ),
@@ -185,18 +166,9 @@ app.layout = html.Div(id='page', children=[
     ),
 
     html.H3(id='ytd-header', children=f"{curr_year_name} Expenses"),
-    ytd_rent_met_component,
-    html.H6(id='ytd-rent-met-text', children=[
-        html.Span(children=f"{curr_year_name} Average Expenses: "),
-        html.Span(children=f"${ytd_rent_avg:,.2f}", style={'fontWeight': 'bold'}),
-    ]),
     dcc.Graph(
         id='ytd-totals-per-month',
         figure=chart_ytd_totals_per_month
-    ),
-    dcc.Graph(
-        id='ytd-groceries-vs-restaurants-per-month',
-        figure=chart_ytd_groceries_vs_restaurants_per_month
     ),
     dcc.Graph(
         id='ytd-top-categories-per-month',
@@ -213,7 +185,7 @@ app.layout = html.Div(id='page', children=[
 
 
 #==================
-#  GENERATE PDF
+#  GENERATE PNG
 #==================
 
 # https://community.plotly.com/t/download-component-as-image-using-clientside-callback/59503
@@ -231,13 +203,6 @@ clientside_callback(
     Output('download-image', 'n_clicks'),
     Input('download-image', 'n_clicks')
 )
-
-"""
-# TODO: run in prod
-app = dash.Dash(__name__)
-application = app.server
-application.run(host='0.0.0.0', port='8080')
-"""
 
 if __name__ == '__main__':
     app.run_server(debug=True)

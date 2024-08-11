@@ -3,5 +3,8 @@
 run_streamlit:
 	streamlit run app_streamlit.py
 
-run_dash:
-	python app_dash.py
+run_dash_personal:
+	python app_dash_personal.py
+
+run_dash_rent_applicable:
+	python app_dash_rent_applicable.py
