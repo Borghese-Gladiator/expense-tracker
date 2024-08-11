@@ -23,6 +23,7 @@ from dash import (
     Input,
     Output
 )
+from dash.dash_table import DataTable, FormatTemplate
 import dash_bootstrap_components as dbc
 import pandas as pd
 
@@ -34,7 +35,11 @@ from utils.service_utils import get_report_personal
 #==================
 last_month_name = arrow.now().shift(months=-1).format("MMMM")
 curr_year_name = arrow.now().format("YYYY")
+
 DOWNLOAD_PNG_FILENAME = f"{curr_year_name}_{last_month_name}_timmy-jon-expense-tracker"
+
+two_decimal_format = FormatTemplate.money(2)
+
 (
     df_last_month_txn,
     df_last_month_top_categories,
@@ -88,14 +93,14 @@ chart_ytd_totals_per_month = build_bar_chart_with_settings(
     y="amount",
     barmode="group",
 )
-chart_ytd_top_categories_per_month = build_bar_chart_with_settings(
-    df=df_ytd_top_categories_per_month,
+chart_ytd_top_categories = build_bar_chart_with_settings(
+    df=df_ytd_top_categories,
     title=f"{curr_year_name} Top Categories",
     x="category",
     y="amount",
 )
-chart_ytd_top_merchants_per_month = build_bar_chart_with_settings(
-    df=df_ytd_top_merchants_per_month,
+chart_ytd_top_merchants = build_bar_chart_with_settings(
+    df=df_ytd_top_merchants,
     title=f"{curr_year_name} Top Merchants",
     x="merchant",
     y="amount",
@@ -172,12 +177,28 @@ app.layout = html.Div(id='page', children=[
         figure=chart_ytd_totals_per_month
     ),
     dcc.Graph(
-        id='ytd-top-categories-per-month',
-        figure=chart_ytd_top_categories_per_month
+        id='ytd-top-categories',
+        figure=chart_ytd_top_categories
     ),
     dcc.Graph(
-        id='ytd-top-merchants-per-month',
-        figure=chart_ytd_top_merchants_per_month
+        id='ytd-top-merchants',
+        figure=chart_ytd_top_merchants
+    ),
+    DataTable(
+        df_ytd_merchants.to_dict('records'),
+        [{"name": i, "id": i} for i in df_ytd_merchants.columns],
+        style_header_conditional=[
+            {
+                'if': {'column_id': 'amount'},
+                'fontWeight': 'bold'
+            }
+        ],
+        style_data_conditional=[
+            {
+                'if': {'column_id': 'amount'},
+                'fontWeight': 'bold'
+            }
+        ]
     ),
 ], style={
     'marginLeft': '30px',
