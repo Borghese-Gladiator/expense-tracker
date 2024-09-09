@@ -68,7 +68,7 @@ class StatisticService:
             calculate(
                 timeframe_start=arrow.get("2021-01-01"),
                 timeframe_end=arrow.get("2021-12-31"),
-                filter_by_set={StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value="groceries")},
+                filter_by_set={StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS.value, column_value="groceries")},
                 group_by_set={StatisticServiceGroup(column=LunchMoneyGroupColumn.CATEGORY)},
                 sort_by_set={StatisticServiceSort(column=LunchMoneySortColumn.DATE, ascending=True)},
                 interval=StatisticServiceAggregationInterval.MONTHLY
@@ -241,7 +241,7 @@ class StatisticService:
             df.insert(0, 'date', df['date_arrow'].apply(lambda date_arrow: date_arrow.format('YYYY-MM-DD')))
             df = df.drop('date_arrow', axis=1)
         if 'tags' in df:
-            df.loc[:, 'tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag.value for tag in tags]))
+            df.loc[:, 'tags'] = df['tags'].apply(lambda tags: None if tags is None else set([tag for tag in tags]))
         if 'amount' in df:
             df.loc[:, 'amount'] = df['amount'].astype(float).round(2)
         return df
