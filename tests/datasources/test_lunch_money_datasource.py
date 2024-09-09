@@ -55,7 +55,7 @@ class TestLunchMoneyDatasource(unittest.TestCase):
                 'category': 'Category A',
                 'description': 'Description A',
                 'source': 'manual',
-                'tags': {LunchMoneyTag.BROTHER_RENT}
+                'tags': {LunchMoneyTag.BROTHER_RENT.value}
             },
             {
                 'date_arrow': arrow.get('2023-01-02'),

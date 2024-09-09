@@ -41,7 +41,7 @@ class TestStatisticService(unittest.TestCase):
             'category': ['Restaurants', 'Groceries', 'Gas', 'Gas', 'Groceries'],
             "location": [fake.address(), fake.address(), fake.address(), fake.address(), fake.address()],
             "source": ["capital_one", "capital_one", "capital_one", "fidelity", "fidelity"],
-            "tags": [{LunchMoneyTag.BROTHER_RENT}, None, None, None, {LunchMoneyTag.BROTHER_RENT}]
+            "tags": [{LunchMoneyTag.BROTHER_RENT.value}, None, None, None, {LunchMoneyTag.BROTHER_RENT.value}]
         }
         self.df = pd.DataFrame(data)
         self.mock_datasource.get_transactions.return_value = pd.DataFrame(data)
@@ -67,7 +67,7 @@ class TestStatisticService(unittest.TestCase):
         self.assertEqual(self.service.calculate(
             timeframe_start,
             timeframe_end,
-            set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT)]),
+            set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT.value)]),
             None,
             None,
             monthly_interval
@@ -135,7 +135,7 @@ class TestStatisticService(unittest.TestCase):
         self.assertEqual(self.service.get(
             timeframe_start,
             timeframe_end,
-            set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT)]),
+            set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT.value)]),
             None,
         ).to_dict('records'), self.service._format_transactions_df(self.df.iloc[[0, 4]]).to_dict(orient='records'))
         
@@ -153,7 +153,7 @@ class TestStatisticService(unittest.TestCase):
         self.assertEqual(self.service.get(
             timeframe_start,
             timeframe_end,
-            set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT)]),
+            set([StatisticServiceFilter(column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT.value)]),
             None,
         ).to_dict('records'), [])
 

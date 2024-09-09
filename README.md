@@ -37,6 +37,8 @@ Kubernetes
 Dash is way better for building reports than Streamlit (in fact, it's just easier in general because I always want to add icons and customize stuff)
 
 ### To Do
+- [ ] ref: replace LunchMoneyTag with str
+---
 - [ ] dash - mobile support
 - [ ] datasource - cache results in SQLite database (per datasource?)
 - [ ] expense_tracker - add library logging

@@ -10,7 +10,6 @@ from pandera.typing import DataFrame
 from expense_tracker.et_types import TransactionsSchema
 from expense_tracker.datasources.base_datasource import BaseDatasource, BaseDatasourceSettings
 from expense_tracker.et_types.base_datasource_types import TransactionDict
-from expense_tracker.et_types.lunch_money_datasource_types import LunchMoneyTag
 from expense_tracker.et_types.statistic_service_types import Timeframe
 
 
@@ -96,7 +95,7 @@ class LunchMoneyDatasource(BaseDatasource):
                 'category': txn['category_name'],
                 'description': txn['notes'],
                 'source': "manual" if txn['source'] == 'manual' else txn["account_display_name"],
-                'tags': set([LunchMoneyTag(tag["name"]) for tag in txn["tags"]]),
+                'tags': set([tag["name"] for tag in txn["tags"]]),
                 # TODO(07/04/2024) - add "location" when lunch money adds it to API => Lunch Money will not add location info since Plaid's location value is mostly empty
             })
         return res

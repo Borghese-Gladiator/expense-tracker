@@ -56,7 +56,7 @@ def get_report_rent_applicable() -> tuple[
 ]:
     filter_by_set = {
         StatisticServiceFilter(
-            column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT
+            column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT.value
         )
     }
     return generate_report(filter_by_set)
@@ -66,7 +66,7 @@ def get_report_personal() -> tuple[
 ]:
     filter_by_set = {
         StatisticServiceFilter(
-            column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT, exclude=True
+            column=LunchMoneyFilterColumn.TAGS, column_value=LunchMoneyTag.BROTHER_RENT.value, exclude=True
         )
     }
     return generate_report(filter_by_set)
