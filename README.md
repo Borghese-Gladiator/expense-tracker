@@ -37,7 +37,21 @@ Kubernetes
 Dash is way better for building reports than Streamlit (in fact, it's just easier in general because I always want to add icons and customize stuff)
 
 ### To Do
-- [ ] ref: replace LunchMoneyTag with str
+- generate full yearly report
+  - [ ] YEAR summary
+    - [ ] additional amount due
+    - [ ] average per month
+    - [ ] totals per month - compare actual to expected
+  - [ ] MONTH by MONTH breakdown
+    - [ ] transactions table w/ total bolded (date, amount, merchant, category, source)
+  - [ ] YEAR breakdown
+    - [ ] groceries/restaurants per month
+    - [ ] top categories graph
+    - [ ] top merchants graph
+    - [ ] full categories list
+    - [ ] full merchants list
+- [ ] Plotly bar chart inverted - take absolute value
+- [ ] Save to PDF button
 ---
 - [ ] dash - mobile support
 - [ ] datasource - cache results in SQLite database (per datasource?)
@@ -47,6 +61,7 @@ Dash is way better for building reports than Streamlit (in fact, it's just easie
   - `mask = df['tags'].apply(lambda tags: False if tags is None else tags <= filter_by_set.column_value)`
 
 ### Done
+- [X] ref: replace LunchMoneyTag with str
 - 07/25 bugs
   - [X] Jun 1st not being included (check bounds)
   - [X] "source" not appearing when not Fidelity (eg: "Chase CREDIT CARD")
